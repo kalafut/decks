@@ -1,4 +1,4 @@
-from api import server
+import server
 import config
 
 from sqlalchemy import *
