@@ -26,12 +26,11 @@ class App extends React.Component {
   apiUpdate() {
     var self = this;
     request
-   .get('/words')
-   .end(function(err, res){
-     var data = JSON.parse(res.text);
-     self.setState({words: data});
-
-   });
+    .get('/words')
+    .end(function(err, res){
+      var data = JSON.parse(res.text);
+      self.setState({words: data});
+    });
   }
 
   addWord(word) {
@@ -39,6 +38,9 @@ class App extends React.Component {
   }
 
   handleResult(id, result) {
+    var self = this;
+    var newBox;
+
     var updated = this.state.words.map((e)=>{
       if(e.id == id) {
         var wordUpdt = {
@@ -46,12 +48,20 @@ class App extends React.Component {
           word: e.word,
           box: result == RIGHT ? e.box + 1 : 0
         };
+        newBox = wordUpdt.box;
         return wordUpdt;
       } else {
         return e;
       }
     });
     this.setState({ words: updated });
+
+    request
+    .post('/words')
+    .send({id:id, box: newBox})
+    .end(function(err, res) {
+    });
+
   }
 
   switchMode() {

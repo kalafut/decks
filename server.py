@@ -8,13 +8,13 @@ import db
 
 class WordsHandler(tornado.web.RequestHandler):
     def get(self):
-        session = db.get_session()
-        q = session.execute("SELECT deck_card.id, cards.front, deck_card.box FROM deck_card JOIN cards ON deck_card.card_id = cards.id")
-        results = []
-        for c in q:
-            results.append({"id":c["id"], "word":c["front"], "box":c["box"]})
+        results = db.get_deck_cards(1)
 
         self.write(json.dumps(results))
+
+    def post(self):
+        data = tornado.escape.json_decode(self.request.body)
+        db.update_deck_card(data)
 
 class MainHandler(tornado.web.RequestHandler):
     def initialize(self, store):
@@ -87,7 +87,7 @@ def make_app(config):
         "static_path": os.path.join(os.path.dirname(__file__), "static"),
         "cookie_secret": "__TODO:_GENERATE_YOUR_OWN_RANDOM_VALUE_HERE__",
         "login_url": "/login",
-        "xsrf_cookies": True,
+        "xsrf_cookies": False,  # TODO: put this back in
     }
     return tornado.web.Application([
         #(r"/guid/(.*)", MainHandler, dict(store=mysql.MySQLStore(config))),
