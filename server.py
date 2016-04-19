@@ -4,17 +4,17 @@ import tornado.escape
 import tornado.ioloop
 import tornado.web
 
+import db
+
 class WordsHandler(tornado.web.RequestHandler):
     def get(self):
-        #session = self.settings["db_session"]
-        #cards = session.query(Card).all()
-        #print len(cards)
+        session = db.get_session()
+        q = session.execute("SELECT deck_card.id, cards.front, deck_card.box FROM deck_card JOIN cards ON deck_card.card_id = cards.id")
+        results = []
+        for c in q:
+            results.append({"id":c["id"], "word":c["front"], "box":c["box"]})
 
-        test = [
-            { "id": 1, "word": "pizza", "box": 0 },
-            { "id": 2, "word": "candy", "box": 1 },
-            ]
-        self.write(json.dumps(test))
+        self.write(json.dumps(results))
 
 class MainHandler(tornado.web.RequestHandler):
     def initialize(self, store):
@@ -78,7 +78,7 @@ class MainHandler(tornado.web.RequestHandler):
             raise tornado.web.HTTPError(400)
 
 
-def make_app(config, session):
+def make_app(config):
     """Create application and configure routes."""
     # A GUID-format route, (0-9A-F){32}, could be used here if we just want 404s
 
@@ -88,7 +88,6 @@ def make_app(config, session):
         "cookie_secret": "__TODO:_GENERATE_YOUR_OWN_RANDOM_VALUE_HERE__",
         "login_url": "/login",
         "xsrf_cookies": True,
-        "db_session": session,
     }
     return tornado.web.Application([
         #(r"/guid/(.*)", MainHandler, dict(store=mysql.MySQLStore(config))),
@@ -98,8 +97,8 @@ def make_app(config, session):
     ], **settings)
 
 
-def server_start(config, session):
+def server_start(config):
     """Create application and start event loop."""
-    app = make_app(config, session)
+    app = make_app(config)
     app.listen(8888)
     tornado.ioloop.IOLoop.current().start()
