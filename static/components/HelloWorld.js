@@ -1,10 +1,11 @@
+import React from 'react';
+import request from 'superagent';
 var DRILL = 0;
 var EDIT = 1;
 var RIGHT = 1;
 var WRONG = 0;
 
 var max_id = 0;
-var request = window.superagent;
 
 function getRandomInt(min, max) {
   return Math.floor(Math.random() * (max - min)) + min;
@@ -89,6 +90,7 @@ class App extends React.Component {
     )
   }
 }
+export default App;
 
 class WordDrill extends React.Component {
   constructor(props) {
@@ -176,11 +178,3 @@ class WordEditor extends React.Component {
       );
   }
 }
-
-class HelloWorld extends React.Component {
-  render() {
-    return <App/>
-  }
-}
-
-window.App.HelloWorld = HelloWorld

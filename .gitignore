@@ -1,2 +1,4 @@
 *.pyc
+node_modules/
 test.db
+static/dist/bundle.js
