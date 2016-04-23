@@ -5,8 +5,38 @@ import tornado.ioloop
 import tornado.web
 
 import db
+import bcrypt
 
-class WordsHandler(tornado.web.RequestHandler):
+class BaseHandler(tornado.web.RequestHandler):
+    def get_current_user(self):
+        return self.get_secure_cookie("user_id")
+
+class LoginHandler(BaseHandler):
+    def get(self):
+        self.render("login.html", user_id=self.current_user)
+
+    def post(self):
+        self.set_secure_cookie("user_id", self.get_argument("email"))
+        self.redirect("/login")
+
+class SignupHandler(BaseHandler):
+    def get(self):
+        self.render("signup.html")
+
+    def post(self):
+        conn = db.get_conn()
+        pw = self.get_argument("password").encode('utf-8')
+        print pw
+        hashpw = bcrypt.hashpw(pw, bcrypt.gensalt(12))
+        conn.execute(db.users.insert(),
+                name=self.get_argument("name"),
+                email=self.get_argument("email"),
+                password=hashpw)
+        self.clear_cookie("user_id")
+        self.redirect("/login")
+
+
+class WordsHandler(BaseHandler):
     def get(self):
         results = db.get_deck_cards(1)
 
@@ -16,7 +46,7 @@ class WordsHandler(tornado.web.RequestHandler):
         data = tornado.escape.json_decode(self.request.body)
         db.update_deck_card(data)
 
-class MainHandler(tornado.web.RequestHandler):
+class MainHandler(BaseHandler):
     def initialize(self, store):
         self.store = store
 
@@ -92,7 +122,9 @@ def make_app(config):
     return tornado.web.Application([
         #(r"/guid/(.*)", MainHandler, dict(store=mysql.MySQLStore(config))),
         #(r"/guid", MainHandler, dict(store=mysql.MySQLStore(config))),
-        (r"/words", WordsHandler, dict()),
+        (r"/words", WordsHandler),
+        (r"/login", LoginHandler),
+        (r"/signup", SignupHandler),
         #(r"/static/(.*)", tornado.web.StaticFileHandler, dict(path=settings['static_path'])),
     ], **settings)
 
