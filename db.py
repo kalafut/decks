@@ -2,14 +2,17 @@ from sqlalchemy import *
 from sqlalchemy.sql import select
 import sqlite3
 
+DB_NAME = 'sqlite:///test.db'
 metadata = MetaData()
 
 __session = None
 __conn = None
 
-user = Table('users', metadata,
+users = Table('users', metadata,
         Column('id', Integer, primary_key=True),
-        Column('name', String(255), nullable=False)
+        Column('name', String(255), nullable=False),
+        Column('email', String(255), nullable=False),
+        Column('password', String(255), nullable=False)
         )
 
 students = Table('students', metadata,
@@ -46,7 +49,7 @@ def get_session():
     global __session
 
     if not __session:
-        __session = sqlite3.connect('test.db')
+        __session = sqlite3.connect(DB_NAME)
         __session.row_factory = sqlite3.Row
     return __session
 
@@ -54,7 +57,7 @@ def get_conn():
     global __conn
 
     if not __conn:
-        engine = create_engine('sqlite:///test.db')
+        engine = create_engine(DB_NAME)
         __conn = engine.connect()
     return __conn
 
@@ -84,3 +87,24 @@ def as_dict(result):
 
     return result_dict
 
+def create_all():
+    engine = create_engine('sqlite:///test.db')
+    metadata.create_all(engine)
+
+    conn = get_conn()
+    conn.execute(users.insert(), id=1, name="Jim", email="jim@kalafut.net", password="password")
+    conn.execute(students.insert(), id=1, name="Ben", teacher_id=1)
+    conn.execute(cards.insert(), [
+        {'id':1, 'front':'dog', 'owner_id':1},
+        {'id':2, 'front':'cat', 'owner_id':1},
+        {'id':3, 'front':'pizza', 'owner_id':1}
+        ])
+    conn.execute(decks.insert(), id=1, name="First Deck", student_id=1)
+    conn.execute(deck_card.insert(), [
+        {'deck_id':1, 'card_id':1},
+        {'deck_id':1, 'card_id':2},
+        {'deck_id':1, 'card_id':3}
+        ])
+
+if __name__ == "__main__":
+    create_all()
