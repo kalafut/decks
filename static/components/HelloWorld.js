@@ -5,7 +5,8 @@ var EDIT = 1;
 var RIGHT = 1;
 var WRONG = 0;
 
-var max_id = 0;
+// Set next_id to well out of range of what is coming from the database
+var next_id = 10000000;
 
 function getRandomInt(min, max) {
   return Math.floor(Math.random() * (max - min)) + min;
@@ -16,8 +17,8 @@ class App extends React.Component {
     super(props);
     this.state = {
       words:[
-        {id: max_id++, word: "dog", box:0},
-        {id: max_id++, word: "cat", box:0},
+        {id: next_id++, word: "dog", box:0},
+        {id: next_id++, word: "cat", box:0},
       ],
       mode: EDIT,
     };
@@ -35,7 +36,12 @@ class App extends React.Component {
   }
 
   addWord(word) {
-    this.setState({words: this.state.words.concat({id: max_id++, word:word, box:0})});
+    this.setState({words: this.state.words.concat({id: next_id++, word:word, box:0})});
+    request
+    .post('/word/add')
+    .send({front:word})
+    .end(function(err,res) {
+    });
   }
 
   handleResult(id, result) {

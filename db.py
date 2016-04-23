@@ -80,6 +80,12 @@ def update_deck_card(data):
     stmt = deck_card.update().where(deck_card.c.id == id).values(box=box)
     conn.execute(stmt)
 
+def add_card(data):
+    conn = get_conn()
+    result = conn.execute(cards.insert(), front=data["front"], owner_id=1)
+    new_id = result.inserted_primary_key[0]
+    result = conn.execute(deck_card.insert(), deck_id=1, card_id=new_id)
+
 def as_dict(result):
     result_dict = {}
     for key in result.keys():

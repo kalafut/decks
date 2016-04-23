@@ -36,6 +36,11 @@ class SignupHandler(BaseHandler):
         self.redirect("/login")
 
 
+class AddHandler(BaseHandler):
+    def post(self):
+        data = tornado.escape.json_decode(self.request.body)
+        db.add_card(data)
+
 class WordsHandler(BaseHandler):
     def get(self):
         results = db.get_deck_cards(1)
@@ -122,6 +127,7 @@ def make_app(config):
     return tornado.web.Application([
         #(r"/guid/(.*)", MainHandler, dict(store=mysql.MySQLStore(config))),
         #(r"/guid", MainHandler, dict(store=mysql.MySQLStore(config))),
+        (r"/word/add", AddHandler),
         (r"/words", WordsHandler),
         (r"/login", LoginHandler),
         (r"/signup", SignupHandler),
