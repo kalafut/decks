@@ -13,6 +13,8 @@ class BaseHandler(tornado.web.RequestHandler):
 
 class LoginHandler(BaseHandler):
     def get(self):
+        user_id = db.find_user_id(self.get_argument("email"), self.get_argument("password"))
+
         self.render("login.html", user_id=self.current_user)
 
     def post(self):
@@ -26,7 +28,6 @@ class SignupHandler(BaseHandler):
     def post(self):
         conn = db.get_conn()
         pw = self.get_argument("password").encode('utf-8')
-        print pw
         hashpw = bcrypt.hashpw(pw, bcrypt.gensalt(12))
         conn.execute(db.users.insert(),
                 name=self.get_argument("name"),
