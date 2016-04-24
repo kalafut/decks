@@ -5,7 +5,6 @@ import tornado.ioloop
 import tornado.web
 
 import db
-import bcrypt
 
 class BaseHandler(tornado.web.RequestHandler):
     def get_current_user(self):
@@ -13,7 +12,7 @@ class BaseHandler(tornado.web.RequestHandler):
 
 class LoginHandler(BaseHandler):
     def get(self):
-        user_id = db.find_user_id(self.get_argument("email"), self.get_argument("password"))
+        #user_id = db.find_user_id(self.get_argument("email"), self.get_argument("password"))
 
         self.render("login.html", user_id=self.current_user)
 
@@ -23,19 +22,19 @@ class LoginHandler(BaseHandler):
 
 class SignupHandler(BaseHandler):
     def get(self):
-        self.render("signup.html")
+        self.render("signup.html", error_msg=None)
 
     def post(self):
-        conn = db.get_conn()
-        pw = self.get_argument("password").encode('utf-8')
-        hashpw = bcrypt.hashpw(pw, bcrypt.gensalt(12))
-        conn.execute(db.users.insert(),
-                name=self.get_argument("name"),
-                email=self.get_argument("email"),
-                password=hashpw)
-        self.clear_cookie("user_id")
-        self.redirect("/login")
-
+        valid, data = db.add_user(
+            self.get_argument("name"),
+            self.get_argument("email"),
+            self.get_argument("password")
+            )
+        if valid:
+            self.set_secure_cookie("user_id", str(data))
+            self.redirect("/login")
+        else:
+            self.render("signup.html", error_msg=data)
 
 class AddHandler(BaseHandler):
     def post(self):

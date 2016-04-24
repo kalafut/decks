@@ -1,39 +1,45 @@
 <html>
-   <head>
-      <title>Login</title>
-    <title>React Simple</title>
-    <script src="https://code.jquery.com/jquery-2.2.3.min.js"></script>
-    <!-- Latest compiled and minified CSS -->
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
-
-    <!-- Optional theme -->
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap-theme.min.css" integrity="sha384-fLW2N01lMqjakBkx3l/M9EahuwpSfeNvV63J5ezn3uZzapT0u7EYsXMjQV+0En5r" crossorigin="anonymous">
-
-    <!-- Latest compiled and minified JavaScript -->
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
-   </head>
-   <body>
-   <div class="container">
-       <div class="row">
-           <form method="post">
-               <div class="form-group">
-                   <label for="name">Name</label>
-                   <input type="text" class="form-control" id="name" name="name" placeholder="Name"/>
-               </div>
-               <div class="form-group">
-                   <label for="email">Email address</label>
-                   <input type="email" class="form-control" id="email" name="email" placeholder="Email">
-               </div>
-               <div class="form-group">
-                   <label for="password">Password</label>
-                   <input type="password" class="form-control" id="password" name="password" placeholder="Password">
-               </div>
-               <br>
-               <button type="submit" class="btn btn-default">Submit</button>
-           </form>
-       </div>
-       <form>
-       </form>
+<head>
+<title>Login</title>
+<link rel="stylesheet" href="http://yui.yahooapis.com/pure/0.6.0/pure-min.css">
+<!--[if lte IE 8]>
+    <link rel="stylesheet" href="http://yui.yahooapis.com/pure/0.6.0/grids-responsive-old-ie-min.css">
+    <![endif]-->
+<!--[if gt IE 8]><!-->
+    <link rel="stylesheet" href="http://yui.yahooapis.com/pure/0.6.0/grids-responsive-min.css">
+    <!--<![endif]-->
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+{% if error_msg %}
+{{ error_msg }}
+{% end %}
+<div class="pure-g">
+    <div class="pure-u-1-5">
+    </div>
+    <div class="pure-u-3-5">
+        <form method="post" class="pure-form pure-form-aligned">
+            <fieldset>
+                <div class="pure-control-group">
+                    <label for="name">Name</label>
+                    <input type="text" class="form-control" id="name" name="name" placeholder="Name"/>
+                </div>
+                <div class="pure-control-group">
+                    <label for="email">Email address</label>
+                    <input type="email" class="form-control" id="email" name="email" placeholder="Email">
+                </div>
+                <div class="pure-control-group">
+                    <label for="password">Password</label>
+                    <input type="password" class="form-control" id="password" name="password" placeholder="Password">
+                </div>
+                <div class="pure-controls">
+                    <button type="submit" class="pure-button pure-button-primary">Submit</button>
+                </div>
+            </fieldset>
+        </form>
+    </div>
+    <div class="pure-u-1-5">
+    </div>
 </div>
-   </body>
- </html>
+</body>
+</html>

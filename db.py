@@ -1,5 +1,6 @@
 from sqlalchemy import *
 from sqlalchemy.sql import select
+import bcrypt
 import sqlite3
 
 DB_NAME = 'sqlite:///test.db'
@@ -85,6 +86,23 @@ def add_card(data):
     result = conn.execute(cards.insert(), front=data["front"], owner_id=1)
     new_id = result.inserted_primary_key[0]
     result = conn.execute(deck_card.insert(), deck_id=1, card_id=new_id)
+
+def add_user(name, email, password):
+    conn = get_conn()
+
+    result = conn.execute(select([users]).where(users.c.email == email))
+    if result.first():
+        # already exists
+        return False, "Email address already exists"
+
+    pw = password.encode('utf-8')
+    hashpw = bcrypt.hashpw(pw, bcrypt.gensalt(12))
+    result = conn.execute(users.insert(),
+        name=name,
+        email=email,
+        password=hashpw)
+    print result.inserted_primary_key
+    return True, result.inserted_primary_key[0]
 
 def as_dict(result):
     result_dict = {}
