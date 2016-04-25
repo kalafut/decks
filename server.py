@@ -9,7 +9,7 @@ import db
 class BaseHandler(tornado.web.RequestHandler):
     def get_current_user(self):
         # TODO move to session ID
-        return db.get_session(self.get_secure_cookie("session_id"))
+        return db.get_session(self.get_secure_cookie("session_id")).user
 
 class LoginHandler(BaseHandler):
     def get(self):
@@ -26,7 +26,8 @@ class LoginHandler(BaseHandler):
 
 class HomeHandler(BaseHandler):
     def get(self):
-        return self.render("home.html", user=db.User(name="Jim", email="jim@kalafut.net"))#self.current_user)
+        session = db.get_session()
+        return self.render("home.html", user=self.current_user)
 
 class SignupHandler(BaseHandler):
     def get(self):

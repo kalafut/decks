@@ -129,7 +129,7 @@ def login(email, password):
         return False, "Invalid username or password"
 
     pw = password.encode('utf-8')
-    if not bcrypt.hashpw(pw, user.password.encode('utf-8')) == user.password:
+    if not bcrypt.hashpw(pw, user.password) == user.password:
         return False, "Invalid username or password"
 
     user = User(id=user.id, name=user.name, email=user.email)
