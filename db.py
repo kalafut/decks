@@ -127,7 +127,7 @@ def login(email, password):
         return False, "Invalid username or password"
 
     pw = password.encode('utf-8')
-    if not bcrypt.hashpw(pw, user.password.encode('utf-8')):
+    if not bcrypt.hashpw(pw, user.password.encode('utf-8')) == user.password:
         return False, "Invalid username or password"
 
     user = User(id=user.id, name=user.name, email=user.email)
@@ -142,7 +142,6 @@ def as_dict(result):
     return result_dict
 
 def get_session(session_id):
-    print session_id
     if not session_id:
         return None
 
@@ -185,5 +184,4 @@ def create_all():
         ])
 
 if __name__ == "__main__":
-    print random_session_id()
     create_all()
