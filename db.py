@@ -6,6 +6,8 @@ import bcrypt
 import sqlite3
 from sqlalchemy import *
 from sqlalchemy.sql import select
+from sqlalchemy.engine import Engine
+from sqlalchemy import event
 
 DB_NAME = 'sqlite:///test.db'
 metadata = MetaData()
@@ -182,6 +184,12 @@ def create_all():
         {'deck_id':1, 'card_id':2},
         {'deck_id':1, 'card_id':3}
         ])
+
+@event.listens_for(Engine, "connect")
+def set_sqlite_pragma(dbapi_connection, connection_record):
+    cursor = dbapi_connection.cursor()
+    cursor.execute("PRAGMA foreign_keys=ON")
+    cursor.close()
 
 if __name__ == "__main__":
     create_all()
