@@ -1,19 +1,34 @@
-from sqlalchemy import *
-from sqlalchemy.sql import select
+import collections
+import string
+from random import SystemRandom
+
 import bcrypt
 import sqlite3
+from sqlalchemy import *
+from sqlalchemy.sql import select
 
 DB_NAME = 'sqlite:///test.db'
 metadata = MetaData()
 
 __session = None
 __conn = None
+prng = SystemRandom()
+
+User = collections.namedtuple('User', ['id', 'name', 'email'])
+Session = collections.namedtuple('Session', ['session_id', 'user'])
 
 users = Table('users', metadata,
         Column('id', Integer, primary_key=True),
         Column('name', String(255), nullable=False),
         Column('email', String(255), nullable=False),
         Column('password', String(255), nullable=False)
+        )
+
+sessions = Table('sessions', metadata,
+        Column('id', Integer, primary_key=True),
+        Column('session_id', String(255), nullable=False),
+        Column('user_id', Integer, ForeignKey('users.id'), nullable=False),
+        Column('expiration', Integer, nullable=False, default=0)
         )
 
 students = Table('students', metadata,
@@ -46,13 +61,13 @@ deck_card = Table('deck_card', metadata,
         )
 
 
-def get_session():
-    global __session
-
-    if not __session:
-        __session = sqlite3.connect(DB_NAME)
-        __session.row_factory = sqlite3.Row
-    return __session
+#def get_session():
+#    global __session
+#
+#    if not __session:
+#        __session = sqlite3.connect(DB_NAME)
+#        __session.row_factory = sqlite3.Row
+#    return __session
 
 def get_conn():
     global __conn
@@ -101,8 +116,23 @@ def add_user(name, email, password):
         name=name,
         email=email,
         password=hashpw)
-    print result.inserted_primary_key
     return True, result.inserted_primary_key[0]
+
+def login(email, password):
+    conn = get_conn()
+
+    result = conn.execute(select([users]).where(users.c.email == email))
+    user = result.first()
+    if not user:
+        return False, "Invalid username or password"
+
+    pw = password.encode('utf-8')
+    if not bcrypt.hashpw(pw, user.password.encode('utf-8')):
+        return False, "Invalid username or password"
+
+    user = User(id=user.id, name=user.name, email=user.email)
+    session_id = create_session(user)
+    return True, Session(session_id=session_id, user=user)
 
 def as_dict(result):
     result_dict = {}
@@ -110,6 +140,30 @@ def as_dict(result):
         result_dict[key] = result[key]
 
     return result_dict
+
+def get_session(session_id):
+    print session_id
+    if not session_id:
+        return None
+
+    conn = get_conn()
+    session = conn.execute(select([sessions]).where(sessions.c.session_id == session_id)).fetchone()
+    if not session:
+        return None
+
+    user = conn.execute(select([users]).where(users.c.id == session.user_id)).fetchone()
+
+    return User(id=user.id, name=user.name, email=user.email)
+
+def create_session(user):
+    session_id = random_session_id()
+
+    conn = get_conn()
+    conn.execute(sessions.insert(), session_id=session_id, user_id=user.id, expiration=0)
+    return session_id
+
+def random_session_id():
+    return "".join([prng.choice(string.ascii_letters) for _ in range(30)])
 
 def create_all():
     engine = create_engine('sqlite:///test.db')
@@ -131,4 +185,5 @@ def create_all():
         ])
 
 if __name__ == "__main__":
+    print random_session_id()
     create_all()

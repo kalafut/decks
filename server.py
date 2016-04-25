@@ -8,17 +8,25 @@ import db
 
 class BaseHandler(tornado.web.RequestHandler):
     def get_current_user(self):
-        return self.get_secure_cookie("user_id")
+        # TODO move to session ID
+        return db.get_session(self.get_secure_cookie("session_id"))
 
 class LoginHandler(BaseHandler):
     def get(self):
         #user_id = db.find_user_id(self.get_argument("email"), self.get_argument("password"))
 
-        self.render("login.html", user_id=self.current_user)
+        self.render("login.html", error_msg=None)
 
     def post(self):
-        self.set_secure_cookie("user_id", self.get_argument("email"))
-        self.redirect("/login")
+        valid, data = db.login(self.get_argument("email"), self.get_argument("password"))
+        if valid:
+            self.set_secure_cookie("session_id", data.session_id)
+        else:
+            self.render("login.html", error_msg=data)
+
+class HomeHandler(BaseHandler):
+    def get(self):
+        return self.render("home.html", user=db.User(name="Jim", email="jim@kalafut.net"))#self.current_user)
 
 class SignupHandler(BaseHandler):
     def get(self):
@@ -31,7 +39,7 @@ class SignupHandler(BaseHandler):
             self.get_argument("password")
             )
         if valid:
-            self.set_secure_cookie("user_id", str(data))
+            self.set_secure_cookie("session_id", str(data))
             self.redirect("/login")
         else:
             self.render("signup.html", error_msg=data)
@@ -131,6 +139,7 @@ def make_app(config):
         (r"/words", WordsHandler),
         (r"/login", LoginHandler),
         (r"/signup", SignupHandler),
+        (r"/", HomeHandler),
         #(r"/static/(.*)", tornado.web.StaticFileHandler, dict(path=settings['static_path'])),
     ], **settings)
 
