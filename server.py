@@ -1,8 +1,8 @@
 import json
 import os
-import tornado.escape
-import tornado.ioloop
-import tornado.web
+import tornado.escape # type: ignore
+import tornado.ioloop # type: ignore
+import tornado.web    # type: ignore
 
 import db
 
@@ -26,8 +26,9 @@ class LoginHandler(BaseHandler):
 
 class HomeHandler(BaseHandler):
     def get(self):
-        session = db.get_session()
-        return self.render("home.html", user=self.current_user)
+        pass
+        #session = db.get_session()
+        #return self.render("home.html", user=self.current_user)
 
 class SignupHandler(BaseHandler):
     def get(self):

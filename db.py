@@ -1,18 +1,20 @@
 import collections
 import string
+import typing
 from random import SystemRandom
 
 import bcrypt
-import sqlite3
-from sqlalchemy import *
-from sqlalchemy.sql import select
-from sqlalchemy.engine import Engine
-from sqlalchemy import event
+import sqlite3                       # type: ignore
+from sqlalchemy import Table, Column, Integer, String, ForeignKey, MetaData  # type: ignore
+from sqlalchemy import create_engine # type: ignore
+from sqlalchemy.sql import select    # type: ignore
+from sqlalchemy.engine import Engine # type: ignore
+from sqlalchemy import event         # type: ignore
 
 DB_NAME = 'sqlite:///test.db'
 metadata = MetaData()
 
-__session = None
+#__session = None
 __conn = None
 prng = SystemRandom()
 
