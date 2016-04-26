@@ -1,0 +1,6 @@
+bcrypt==2.0.0
+cffi==1.6.0
+pycparser==2.14
+six==1.10.0
+SQLAlchemy==1.0.12
+tornado==4.3

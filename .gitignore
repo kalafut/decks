@@ -2,3 +2,7 @@
 node_modules/
 test.db
 static/dist/bundle.js
+.idea/
+bin/
+lib/
+pip-selfcheck.json
