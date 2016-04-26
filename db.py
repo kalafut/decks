@@ -145,16 +145,16 @@ def as_dict(result):
 
     return result_dict
 
-def get_session(session_id):
-    if not session_id:
-        return None
-
+def get_current_user(session_id: str) -> User:
     conn = get_conn()
     session = conn.execute(select([sessions]).where(sessions.c.session_id == session_id)).fetchone()
+
     if not session:
         return None
 
     user = conn.execute(select([users]).where(users.c.id == session.user_id)).fetchone()
+    if not user:
+        return None
 
     return User(id=user.id, name=user.name, email=user.email)
 

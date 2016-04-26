@@ -7,28 +7,28 @@ import tornado.web    # type: ignore
 import db
 
 class BaseHandler(tornado.web.RequestHandler):
-    def get_current_user(self):
-        # TODO move to session ID
-        return db.get_session(self.get_secure_cookie("session_id")).user
+    def get_current_user(self) -> db.User:
+        session_id = self.get_secure_cookie("session_id") # type: bytes
+        if session_id:
+            return db.get_current_user(session_id.decode())
+        else:
+            return None
 
 class LoginHandler(BaseHandler):
     def get(self):
-        #user_id = db.find_user_id(self.get_argument("email"), self.get_argument("password"))
-
         self.render("login.html", error_msg=None)
 
     def post(self):
         valid, data = db.login(self.get_argument("email"), self.get_argument("password"))
         if valid:
             self.set_secure_cookie("session_id", data.session_id)
+            self.redirect("/")
         else:
             self.render("login.html", error_msg=data)
 
 class HomeHandler(BaseHandler):
     def get(self):
-        pass
-        #session = db.get_session()
-        #return self.render("home.html", user=self.current_user)
+        return self.render("home.html", user=self.current_user)
 
 class SignupHandler(BaseHandler):
     def get(self):
