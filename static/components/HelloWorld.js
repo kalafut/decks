@@ -1,7 +1,7 @@
 import React from 'react';
 import request from 'superagent';
 import { Students } from './students';
-
+import { getState, register, dispatch } from './store'
 
 var DRILL = 0;
 var EDIT = 1;
@@ -36,6 +36,10 @@ export default Frame;
 class App extends React.Component {
   constructor(props) {
     super(props);
+    register(() => { this.setState(getState()) })
+
+
+    /*
     this.state = {
       words:[
         {id: next_id--, word: "dog", box:0},
@@ -47,27 +51,9 @@ class App extends React.Component {
       ],
       mode: EDIT,
     };
-    this.apiUpdate();
-  }
-
-  dispatcher() {
-    return this.dispatch
-  }
-
-  dispatch(id, data) {
-    switch(id) {
-        case 'ADD_STUDENT':
-            this.setState({
-              students: [...this.state.students, {id: next_id--, name: data}]
-            })
-            break
-        case 'RM_STUDENT':
-            let s = this.state.students.filter((s)=>{
-              return s.id != data;
-            })
-            this.setState({students: s});
-            break;
-    }
+    */
+    this.state = getState()
+    //this.apiUpdate();
   }
 
   apiUpdate() {
@@ -115,11 +101,6 @@ class App extends React.Component {
     });
 
   }
-
-  switchMode() {
-    this.setState({mode: (this.state.mode + 1) % MODE_CNT});
-  }
-
   render() {
     var content;
 
@@ -132,13 +113,13 @@ class App extends React.Component {
           break;
       case STUDENT:
           //content = <div>Hi</div>
-          content = <Students students={this.state.students} dispatch={this.dispatch.bind(this)}/>;
+          content = <Students/>;
           break;
     }
 
     return (
       <div>
-      <button className="pure-button pure-button-primary" onClick={this.switchMode.bind(this)}>Mode</button>
+      <button className="pure-button pure-button-primary" onClick={dispatch.bind(this, 'NEXT_MODE')}>Mode</button>
       <br/>
       {content}
       </div>

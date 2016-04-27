@@ -1,5 +1,6 @@
 import React from 'react';
 import request from 'superagent';
+import { dispatch, getState } from './store'
 
 var next_id = -1;
 
@@ -18,12 +19,12 @@ export class Students extends React.Component {
     return (
       <div>
         <ul>
-          {this.props.students.map((student)=>{
-            return <li key={student.id}>{student.name} <a href="#" onClick={this.props.dispatch.bind(this, "RM_STUDENT", student.id)}>Delete</a>
+          {getState().students.map((student)=>{
+            return <li key={student.id}>{student.name} <a href="#" onClick={dispatch.bind(this, "RM_STUDENT", student.id)}>Delete</a>
             </li>;
           })}
         </ul>
-        <AddStudent dispatch={this.props.dispatch} />
+        <AddStudent />
       </div>
     );
   }
@@ -44,7 +45,7 @@ class AddStudent extends React.Component {
   save() {
     var name = this.refs.newName.value.trim();
     if(name.length > 0) {
-      this.props.dispatch('ADD_STUDENT', name);
+      dispatch('ADD_STUDENT', name);
     }
     this.setState({adding: false});
   }
