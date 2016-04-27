@@ -12,6 +12,21 @@ function getRandomInt(min, max) {
   return Math.floor(Math.random() * (max - min)) + min;
 }
 
+class Frame extends React.Component {
+  render() {
+    return(
+      <div className="pure-g">
+        <div className="pure-u-1-5"></div>
+        <div className="pure-u-3-5">
+          <App/>
+        </div>
+        <div className="pure-u-1-5"></div>
+      </div>
+    )
+  }
+}
+export default Frame;
+
 class App extends React.Component {
   constructor(props) {
     super(props);
@@ -89,14 +104,13 @@ class App extends React.Component {
 
     return (
       <div>
-      <button onClick={this.switchMode.bind(this)}>Mode</button>
+      <button className="pure-button pure-button-primary" onClick={this.switchMode.bind(this)}>Mode</button>
       <br/>
       {content}
       </div>
     )
   }
 }
-export default App;
 
 class WordDrill extends React.Component {
   constructor(props) {
@@ -144,8 +158,8 @@ class WordDrill extends React.Component {
       <div>
         <div>{this.average()}</div>
         <div>{word.word} ({word.box})</div>
-        <button onClick={this.handleRight.bind(this)}>Right</button>
-        <button onClick={this.handleWrong.bind(this)}>Wrong</button>
+        <button className="pure-button button-success" onClick={this.handleRight.bind(this)}>Right</button>
+        <button className="pure-button button-error" onClick={this.handleWrong.bind(this)}>Wrong</button>
       </div>
     );
   }

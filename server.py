@@ -28,7 +28,7 @@ class LoginHandler(BaseHandler):
 
 class HomeHandler(BaseHandler):
     def get(self):
-        return self.render("home.html", user=self.current_user)
+        return self.render("templates/index.html")
 
 class SignupHandler(BaseHandler):
     def get(self):
