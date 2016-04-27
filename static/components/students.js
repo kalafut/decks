@@ -4,10 +4,6 @@ import request from 'superagent';
 var next_id = -1;
 
 export class Students extends React.Component {
-  onDelete(id) {
-    this.props.dispatch({id:"RM_STUDENT", data:{id}})
-  }
-
   apiUpdate() {
     var self = this;
     request
@@ -23,7 +19,7 @@ export class Students extends React.Component {
       <div>
         <ul>
           {this.props.students.map((student)=>{
-            return <li key={student.id}>{student.name} <a href="#" onClick={this.props.dispatch.bind(this, {id:"RM_STUDENT", data:{id:student.id}})}>Delete</a>
+            return <li key={student.id}>{student.name} <a href="#" onClick={this.props.dispatch.bind(this, "RM_STUDENT", student.id)}>Delete</a>
             </li>;
           })}
         </ul>
@@ -48,7 +44,7 @@ class AddStudent extends React.Component {
   save() {
     var name = this.refs.newName.value.trim();
     if(name.length > 0) {
-      this.props.dispatch({id: 'ADD_STUDENT', data: {name} });
+      this.props.dispatch('ADD_STUDENT', name);
     }
     this.setState({adding: false});
   }

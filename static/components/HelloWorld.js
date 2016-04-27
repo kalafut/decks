@@ -54,16 +54,16 @@ class App extends React.Component {
     return this.dispatch
   }
 
-  dispatch({id, data}) {
+  dispatch(id, data) {
     switch(id) {
         case 'ADD_STUDENT':
             this.setState({
-              students: [...this.state.students, {id: next_id--, name: data.name}]
+              students: [...this.state.students, {id: next_id--, name: data}]
             })
             break
         case 'RM_STUDENT':
             let s = this.state.students.filter((s)=>{
-              return s.id != data.id;
+              return s.id != data;
             })
             this.setState({students: s});
             break;
