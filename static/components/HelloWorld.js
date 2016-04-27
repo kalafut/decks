@@ -56,23 +56,8 @@ class App extends React.Component {
     //this.apiUpdate();
   }
 
-  apiUpdate() {
-    var self = this;
-    request
-    .get('/words')
-    .end(function(err, res){
-      var data = JSON.parse(res.text);
-      self.setState({words: data});
-    });
-  }
-
-  addWord(word) {
-    this.setState({words: this.state.words.concat({id: next_id++, word:word, box:0})});
-    request
-    .post('/word/add')
-    .send({front:word})
-    .end(function(err,res) {
-    });
+  componentDidMount() {
+    dispatch('FETCH_WORDS')
   }
 
   handleResult(id, result) {
@@ -106,10 +91,10 @@ class App extends React.Component {
 
     switch(this.state.mode) {
       case EDIT:
-          content = <WordEditor words={this.state.words} addWord={this.addWord.bind(this)}/>;
+          content = <WordEditor/>;
           break;
       case DRILL:
-          content = <WordDrill words={this.state.words} handleResult={this.handleResult.bind(this)}/>;
+          content = <WordDrill handleResult={this.handleResult.bind(this)}/>;
           break;
       case STUDENT:
           //content = <div>Hi</div>
@@ -129,53 +114,22 @@ class App extends React.Component {
 
 
 class WordDrill extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      idx: getRandomInt(0, this.props.words.length)
-    }
-  }
-
   average() {
     var total = 0;
-    this.props.words.forEach((e)=>{
+    getState().words.forEach((e)=>{
       total += e.box;
     });
-    return total / this.props.words.length;
-  }
-
-  shouldComponentUpdate(nextProps, nextState) {
-    return this.props !== nextProps;
-  }
-
-  handleRight(e) {
-    this.props.handleResult(this.word().id, RIGHT);
-    this.updateState();
-  }
-
-  handleWrong(e) {
-    this.props.handleResult(this.word().id, WRONG);
-    this.updateState();
-  }
-
-  word() {
-    return this.props.words[this.state.idx];
-  }
-
-  updateState() {
-    this.setState({
-      idx: getRandomInt(0, this.props.words.length)
-    });
+    return total / getState().words.length;
   }
 
   render() {
-    var word = this.word();
+    let word = getState().activeCard
     return(
       <div>
         <div>{this.average()}</div>
         <div>{word.word} ({word.box})</div>
-        <button className="pure-button button-success" onClick={this.handleRight.bind(this)}>Right</button>
-        <button className="pure-button button-error" onClick={this.handleWrong.bind(this)}>Wrong</button>
+        <button className="pure-button button-success" onClick={dispatch.bind(this, 'CARD_RESULT', { id: word.id, correct: true } )}>Right</button>
+        <button className="pure-button button-error" onClick={dispatch.bind(this, 'CARD_RESULT', { id: word.id, correct: false } )}>Wrong</button>
       </div>
     );
   }
@@ -200,7 +154,7 @@ class WordEditor extends React.Component {
       return(
         <div>
           <ul>
-          {this.props.words.map((word)=>{
+          {getState().words.map((word)=>{
             return <li key={word.id}>{word.word}</li>
           })}
           </ul>

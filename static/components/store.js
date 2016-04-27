@@ -1,3 +1,5 @@
+import request from 'superagent'
+
 var DRILL = 0;
 var EDIT = 1;
 var STUDENT = 2;
@@ -18,7 +20,14 @@ let state = {
     {id: next_id--, name: "Laura"},
   ],
   mode: EDIT,
+  activeCard : null
 }
+
+const getRandomInt = (min, max) => {
+  return Math.floor(Math.random() * (max - min)) + min;
+}
+
+state.activeCard = state.words[getRandomInt(0, state.words.length)]
 
 let observer
 
@@ -44,5 +53,38 @@ let actions = {
   },
   'NEXT_MODE': () => {
     state.mode = (state.mode + 1) % MODE_CNT
-  }
+  },
+  'FETCH_WORDS': () => {
+    var self = this;
+    request
+    .get('/words')
+    .end(function(err, res){
+      let data = JSON.parse(res.text)
+      state.words = data
+      notify()
+    })},
+  'ADD_WORD': (word) => {
+    state.words = [...state.words, {id: next_id--, word:word, box:0}]
+    request
+    .post('/word/add')
+    .send({front:word})
+    .end(function(err,res) {
+    });
+  },
+  'CARD_RESULT': ({ id, correct }) => {
+    state.words = state.words.map((e) => {
+      if(e.id == id) {
+        e = {
+          id: e.id,
+          word: e.word,
+          box: correct ? e.box + 1 : 0
+        }
+      }
+      return e
+    })
+    state.activeCard = state.words[getRandomInt(0, getState().words.length)]
+  },
+  'NEXT_CARD': () => {
+    state.activeCard = state.words[getRandomInt(0, getState().words.length)]
+  },
 }
