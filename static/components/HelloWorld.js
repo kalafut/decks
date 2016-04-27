@@ -1,7 +1,13 @@
 import React from 'react';
 import request from 'superagent';
+import { Students } from './students';
+
+
 var DRILL = 0;
 var EDIT = 1;
+var STUDENT = 2;
+var MODE_CNT = 3;
+
 var RIGHT = 1;
 var WRONG = 0;
 
@@ -87,7 +93,7 @@ class App extends React.Component {
   }
 
   switchMode() {
-    this.setState({mode: 1 - this.state.mode});
+    this.setState({mode: (this.state.mode + 1) % MODE_CNT});
   }
 
   render() {
@@ -99,6 +105,10 @@ class App extends React.Component {
           break;
       case DRILL:
           content = <WordDrill words={this.state.words} handleResult={this.handleResult.bind(this)}/>;
+          break;
+      case STUDENT:
+          //content = <div>Hi</div>
+          content = <Students/>;
           break;
     }
 
