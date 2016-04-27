@@ -12,7 +12,7 @@ var RIGHT = 1;
 var WRONG = 0;
 
 // Set next_id to well out of range of what is coming from the database
-var next_id = 10000000;
+var next_id = -1;
 
 function getRandomInt(min, max) {
   return Math.floor(Math.random() * (max - min)) + min;
@@ -38,12 +38,36 @@ class App extends React.Component {
     super(props);
     this.state = {
       words:[
-        {id: next_id++, word: "dog", box:0},
-        {id: next_id++, word: "cat", box:0},
+        {id: next_id--, word: "dog", box:0},
+        {id: next_id--, word: "cat", box:0},
+      ],
+      students:[
+        {id: next_id--, name: "Ben"},
+        {id: next_id--, name: "Laura"},
       ],
       mode: EDIT,
     };
     this.apiUpdate();
+  }
+
+  dispatcher() {
+    return this.dispatch
+  }
+
+  dispatch({id, data}) {
+    switch(id) {
+        case 'ADD_STUDENT':
+            this.setState({
+              students: [...this.state.students, {id: next_id--, name: data.name}]
+            })
+            break
+        case 'RM_STUDENT':
+            let s = this.state.students.filter((s)=>{
+              return s.id != data.id;
+            })
+            this.setState({students: s});
+            break;
+    }
   }
 
   apiUpdate() {
@@ -108,7 +132,7 @@ class App extends React.Component {
           break;
       case STUDENT:
           //content = <div>Hi</div>
-          content = <Students/>;
+          content = <Students students={this.state.students} dispatch={this.dispatch.bind(this)}/>;
           break;
     }
 
@@ -121,6 +145,7 @@ class App extends React.Component {
     )
   }
 }
+
 
 class WordDrill extends React.Component {
   constructor(props) {
