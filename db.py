@@ -4,12 +4,12 @@ import typing
 from random import SystemRandom
 
 import bcrypt
-import sqlite3                       # type: ignore
-from sqlalchemy import Table, Column, Integer, String, ForeignKey, MetaData  # type: ignore
-from sqlalchemy import create_engine # type: ignore
-from sqlalchemy.sql import select    # type: ignore
-from sqlalchemy.engine import Engine # type: ignore
-from sqlalchemy import event         # type: ignore
+import sqlite3                             # type: ignore
+from sqlalchemy import Table, Column, Integer, String, ForeignKey, MetaData # type: ignore
+from sqlalchemy import create_engine       # type: ignore
+from sqlalchemy.sql import select, delete  # type: ignore
+from sqlalchemy.engine import Engine       # type: ignore
+from sqlalchemy import event               # type: ignore
 
 DB_NAME = 'sqlite:///test.db'
 metadata = MetaData()
@@ -31,33 +31,33 @@ users = Table('users', metadata,
 sessions = Table('sessions', metadata,
         Column('id', Integer, primary_key=True),
         Column('session_id', String(255), nullable=False),
-        Column('user_id', Integer, ForeignKey('users.id'), nullable=False),
+        Column('user_id', Integer, ForeignKey('users.id', ondelete='CASCADE'), nullable=False),
         Column('expiration', Integer, nullable=False, default=0)
         )
 
 students = Table('students', metadata,
         Column('id', Integer, primary_key=True),
         Column('name', String(255), nullable=False),
-        Column('teacher_id', Integer, ForeignKey('users.id'), nullable=False)
+        Column('teacher_id', Integer, ForeignKey('users.id', ondelete='CASCADE'), nullable=False)
         )
 
 cards = Table('cards', metadata,
         Column('id', Integer, primary_key=True),
         Column('front', String(255), nullable=False),
         Column('back', String(255), nullable=False, default=""),
-        Column('owner_id', Integer, ForeignKey("users.id"), nullable=False)
+        Column('owner_id', Integer, ForeignKey("users.id", ondelete='CASCADE'), nullable=False)
         )
 
 decks = Table('decks', metadata,
         Column('id', Integer, primary_key=True),
         Column('name', String(255), nullable=False),
-        Column('student_id', Integer, ForeignKey("students.id"), nullable=False)
+        Column('student_id', Integer, ForeignKey("students.id", ondelete='CASCADE'), nullable=False)
         )
 
 deck_card = Table('deck_card', metadata,
         Column('id', Integer, primary_key=True),
-        Column('deck_id', Integer, ForeignKey('decks.id')),
-        Column('card_id', Integer, ForeignKey('cards.id')),
+        Column('deck_id', Integer, ForeignKey('decks.id', ondelete='CASCADE')),
+        Column('card_id', Integer, ForeignKey('cards.id', ondelete='CASCADE')),
         Column('box', Integer, nullable=False, default=0),
         Column('status', Integer, nullable=False, default=0),
         Column('show_count', Integer, nullable=False, default=0),
@@ -178,7 +178,7 @@ def create_all():
     conn.execute(cards.insert(), [
         {'id':1, 'front':'dog', 'owner_id':1},
         {'id':2, 'front':'cat', 'owner_id':1},
-        {'id':3, 'front':'pizza', 'owner_id':1}
+        {'id':3, 'front':'pizza', 'owner_id':1},
         ])
     conn.execute(decks.insert(), id=1, name="First Deck", student_id=1)
     conn.execute(deck_card.insert(), [
