@@ -4,12 +4,12 @@ var webpack = require('webpack');
 var config = {
     devtool: 'cheap-module-eval-source-map',
     entry: [
-        './static/app.js'
+        './client/app.js'
     ],
     output: {
-        path: path.join(__dirname, 'static/dist'),
+        path: path.join(__dirname, 'static'),
         filename: 'bundle.js',
-        publicPath: '/static/dist/'
+        publicPath: '/static/'
     },
     plugins: [
         new webpack.NoErrorsPlugin()

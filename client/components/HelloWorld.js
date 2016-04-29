@@ -1,7 +1,7 @@
 import React from 'react';
 import request from 'superagent';
 import { Students } from './students';
-import { getState, register, dispatch } from './store'
+import { getState, register, dispatch } from '../stores/store'
 
 var DRILL = 0;
 var EDIT = 1;
