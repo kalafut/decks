@@ -1,6 +1,6 @@
 import React from 'react';
 import request from 'superagent';
-import { dispatch, getState } from '../stores/store'
+import { dispatch, getState } from '../stores/dispatcher'
 
 var next_id = -1;
 

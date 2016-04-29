@@ -53,13 +53,13 @@ class AddHandler(BaseHandler):
 
 class WordsHandler(BaseHandler):
     def get(self):
-        results = db.get_deck_cards(1)
+        results = db.get_deckcards(1)
 
         self.write(json.dumps(results))
 
     def post(self):
         data = tornado.escape.json_decode(self.request.body)
-        db.update_deck_card(data)
+        db.update_deckcards(data)
 
 class MainHandler(BaseHandler):
     def initialize(self, store):

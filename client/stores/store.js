@@ -1,4 +1,5 @@
 import request from 'superagent'
+import { getState, notify } from './dispatcher'
 
 var DRILL = 0;
 var EDIT = 1;
@@ -10,7 +11,7 @@ var WRONG = 0;
 
 let next_id = -1
 
-let state = {
+export let state = {
   words:[
     {id: next_id--, word: "dog", box:0},
     {id: next_id--, word: "cat", box:0},
@@ -23,28 +24,14 @@ let state = {
   activeCard : null
 }
 
+
 const getRandomInt = (min, max) => {
   return Math.floor(Math.random() * (max - min)) + min;
 }
 
 state.activeCard = state.words[getRandomInt(0, state.words.length)]
 
-let observer
-
-export const getState = () => { return state }
-export const register = (cb) => { observer = cb }
-const notify = () => { observer() }
-
-export const dispatch = (action, data) => {
-  if(action in actions) {
-    actions[action](data)
-    notify()
-  } else {
-    throw("Unknown action: " + action)
-  }
-}
-
-let actions = {
+export let actions = {
   'ADD_STUDENT': (name) => {
     state.students = [...state.students, {id: next_id--, name}]
   },
