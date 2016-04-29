@@ -14,7 +14,6 @@ from sqlalchemy import event               # type: ignore
 DB_NAME = 'sqlite:///test.db'
 metadata = MetaData()
 
-#__session = None
 __conn = None
 prng = SystemRandom()
 
@@ -35,12 +34,6 @@ sessions = Table('sessions', metadata,
         Column('expiration', Integer, nullable=False, default=0)
         )
 
-students = Table('students', metadata,
-        Column('id', Integer, primary_key=True),
-        Column('name', String(255), nullable=False),
-        Column('teacher_id', Integer, ForeignKey('users.id', ondelete='CASCADE'), nullable=False)
-        )
-
 cards = Table('cards', metadata,
         Column('id', Integer, primary_key=True),
         Column('front', String(255), nullable=False),
@@ -51,10 +44,11 @@ cards = Table('cards', metadata,
 decks = Table('decks', metadata,
         Column('id', Integer, primary_key=True),
         Column('name', String(255), nullable=False),
-        Column('student_id', Integer, ForeignKey("students.id", ondelete='CASCADE'), nullable=False)
+        Column('owner_id', Integer, ForeignKey("users.id", ondelete='CASCADE'), nullable=False),
+        Column('student', String(255), nullable=True),
         )
 
-deck_card = Table('deck_card', metadata,
+deckcards = Table('deckcards', metadata,
         Column('id', Integer, primary_key=True),
         Column('deck_id', Integer, ForeignKey('decks.id', ondelete='CASCADE')),
         Column('card_id', Integer, ForeignKey('cards.id', ondelete='CASCADE')),
@@ -64,15 +58,6 @@ deck_card = Table('deck_card', metadata,
         Column('last_shown', Integer, nullable=False, default=0)
         )
 
-
-#def get_session():
-#    global __session
-#
-#    if not __session:
-#        __session = sqlite3.connect(DB_NAME)
-#        __session.row_factory = sqlite3.Row
-#    return __session
-
 def get_conn():
     global __conn
 
@@ -81,9 +66,9 @@ def get_conn():
         __conn = engine.connect()
     return __conn
 
-def get_deck_cards(deck_id):
+def get_deckcards(deck_id):
     conn = get_conn()
-    s = select([deck_card.c.id, cards.c.front.label('word'), deck_card.c.box]).select_from(deck_card.join(cards)).where(deck_card.c.deck_id == deck_id)
+    s = select([deckcards.c.id, cards.c.front.label('word'), deckcards.c.box]).select_from(deckcards.join(cards)).where(deckcards.c.deck_id == deck_id)
 
     query = conn.execute(s)
     results = [as_dict(c) for c in query]
@@ -92,19 +77,19 @@ def get_deck_cards(deck_id):
 
     return results
 
-def update_deck_card(data):
+def update_deckcards(data):
     id = data["id"]
     box = data["box"]
 
     conn = get_conn()
-    stmt = deck_card.update().where(deck_card.c.id == id).values(box=box)
+    stmt = deckcards.update().where(deckcards.c.id == id).values(box=box)
     conn.execute(stmt)
 
 def add_card(data):
     conn = get_conn()
     result = conn.execute(cards.insert(), front=data["front"], owner_id=1)
     new_id = result.inserted_primary_key[0]
-    result = conn.execute(deck_card.insert(), deck_id=1, card_id=new_id)
+    result = conn.execute(deckcards.insert(), deck_id=1, card_id=new_id)
 
 def add_user(name, email, password):
     conn = get_conn()
@@ -174,14 +159,13 @@ def create_all():
 
     conn = get_conn()
     conn.execute(users.insert(), id=1, name="Jim", email="jim@kalafut.net", password="password")
-    conn.execute(students.insert(), id=1, name="Ben", teacher_id=1)
     conn.execute(cards.insert(), [
         {'id':1, 'front':'dog', 'owner_id':1},
         {'id':2, 'front':'cat', 'owner_id':1},
         {'id':3, 'front':'pizza', 'owner_id':1},
         ])
-    conn.execute(decks.insert(), id=1, name="First Deck", student_id=1)
-    conn.execute(deck_card.insert(), [
+    conn.execute(decks.insert(), id=1, name="First Deck", owner_id=1)
+    conn.execute(deckcards.insert(), [
         {'deck_id':1, 'card_id':1},
         {'deck_id':1, 'card_id':2},
         {'deck_id':1, 'card_id':3}
