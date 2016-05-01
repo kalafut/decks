@@ -18,9 +18,12 @@ function getRandomInt(min, max) {
   return Math.floor(Math.random() * (max - min)) + min;
 }
 
-class Frame extends React.Component {
+export class Frame extends React.Component {
   render() {
     return(
+      <div>
+      Test val: {this.props.mode}
+      <button onClick={this.props.onModeClick}>Press Me!</button>
       <div className="pure-g">
         <div className="pure-u-1-5"></div>
         <div className="pure-u-3-5">
@@ -28,10 +31,10 @@ class Frame extends React.Component {
         </div>
         <div className="pure-u-1-5"></div>
       </div>
+      </div>
     )
   }
 }
-export default Frame;
 
 class App extends React.Component {
   constructor(props) {
