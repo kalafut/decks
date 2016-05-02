@@ -9,7 +9,7 @@ class DeckList extends React.Component {
       <ul>
         {this.props.decks.map((deck) => {
           let name = deck.name
-          if(deck.student !== "") {
+          if(deck.student !== null) {
             name += ` (${deck.student})`
           }
           return (<li key={deck.id}>{name} <button onClick={() => this.props.deckEdit(deck.id)}>Edit</button></li>)

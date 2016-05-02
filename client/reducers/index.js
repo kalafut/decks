@@ -1,5 +1,6 @@
+import request from 'superagent'
 import { combineReducers } from 'redux'
-import { DECK_EDIT } from '../actions/actionTypes'
+import { DECK_EDIT, LOAD_DECKS } from '../actions/actionTypes'
 
 let nextId = -1
 
@@ -26,9 +27,24 @@ const decksApp = (state = defaultState, action) => {
           return Object.assign({}, state, {
             page: 'DECK_EDIT'
           })
+      case LOAD_DECKS:
+          return Object.assign({}, state, {
+            decks: action.data.decks
+          })
       default:
           return state
   }
+}
+
+export const requestDecks = (store) => {
+    request
+    .get('/decks')
+    .end((err, res) => {
+      store.dispatch({
+        type: LOAD_DECKS,
+        data: res.body
+      })
+    })
 }
 
 export default decksApp

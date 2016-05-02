@@ -6,7 +6,6 @@ import DeckEdit from './DeckEdit'
 
 class Page extends React.Component {
   render() {
-    console.log("Render")
     switch(this.props.page) {
         case 'DECK_LIST':
             return <DeckList />
@@ -15,7 +14,7 @@ class Page extends React.Component {
         case 1:
             return <CardList />
         default:
-            return <div>Nothing</div>
+            throw("Unknown page: " + this.props.page)
     }
   }
 }

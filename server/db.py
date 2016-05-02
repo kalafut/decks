@@ -66,15 +66,20 @@ def get_conn():
         __conn = engine.connect()
     return __conn
 
+def get_decks(user_id):
+    conn = get_conn()
+    s = select([decks.c.id, decks.c.name, decks.c.student]).select_from(decks).where(decks.c.owner_id == user_id)
+    query = conn.execute(s)
+    results = [as_dict(c) for c in query]
+    query.close()
+    return results
+
 def get_deckcards(deck_id):
     conn = get_conn()
     s = select([deckcards.c.id, cards.c.front.label('word'), deckcards.c.box]).select_from(deckcards.join(cards)).where(deckcards.c.deck_id == deck_id)
-
     query = conn.execute(s)
     results = [as_dict(c) for c in query]
-
     query.close()
-
     return results
 
 def update_deckcards(data):
@@ -164,7 +169,10 @@ def create_all():
         {'id':2, 'front':'cat', 'owner_id':1},
         {'id':3, 'front':'pizza', 'owner_id':1},
         ])
-    conn.execute(decks.insert(), id=1, name="First Deck", owner_id=1)
+    conn.execute(decks.insert(), [
+        {'name': "First Deck", 'owner_id': 1, 'student': None},
+        {'name': "Second Deck", 'owner_id': 1, 'student': "Ben"},
+        ])
     conn.execute(deckcards.insert(), [
         {'deck_id':1, 'card_id':1},
         {'deck_id':1, 'card_id':2},
