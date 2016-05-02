@@ -1,6 +1,5 @@
 import React from 'react'
 import { connect } from 'react-redux'
-import { nextMode } from '../actions'
 
 class Header extends React.Component {
   render() {

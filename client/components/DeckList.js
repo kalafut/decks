@@ -1,6 +1,5 @@
 import React from 'react'
 import { connect } from 'react-redux'
-import { deckEdit, newDeck } from '../actions'
 
 class DeckList extends React.Component {
   render() {
@@ -27,8 +26,8 @@ const mapStateToProps = (state) => {
 
 const mapDispatchToProps = (dispatch) => {
   return {
-    deckEdit: (id) => { dispatch(deckEdit(id)) },
-    newDeck:  ()   => { dispatch(newDeck()) },
+    deckEdit: (id) => { dispatch({ id, type: 'DECK_EDIT' }) },
+    newDeck:  ()   => { dispatch({ type: 'GOTO_PAGE', page: 'newDeck' }) },
   }
 }
 
