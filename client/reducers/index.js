@@ -30,8 +30,14 @@ const decksApp = (state = defaultState, action) => {
             page: action.page
           })
       case 'ADD_DECK':
+          let deck = action.deck
+          request
+          .post('/decks')
+          .send({name:deck.name, student:deck.student})
+          .end((err, res) => {})
+
           return Object.assign({}, state, {
-            decks: [...state.decks, action.deck]
+            decks: [...state.decks, deck]
           })
       default:
           return state

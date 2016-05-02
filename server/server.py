@@ -62,12 +62,14 @@ class WordsHandler(BaseHandler):
         db.update_deckcards(data)
 
 class DeckHandler(BaseHandler):
-    def get(self):
-        results = db.get_decks(1)
-        self.write({"decks":results})
+    def get(self, deck_id=None):
+        if not deck_id:
+            results = db.get_decks(1)
+            self.write({"decks":results})
 
     def post(self):
-        raise Exception("Unsupported")
+        data = tornado.escape.json_decode(self.request.body)
+        db.add_deck(data)
 
 class MainHandler(BaseHandler):
     def initialize(self, store):
@@ -146,6 +148,7 @@ def make_app(config):
         #(r"/guid/(.*)", MainHandler, dict(store=mysql.MySQLStore(config))),
         #(r"/guid", MainHandler, dict(store=mysql.MySQLStore(config))),
         (r"/decks", DeckHandler),
+        (r"/decks/(.*)", DeckHandler),
         (r"/word/add", AddHandler),
         (r"/words", WordsHandler),
         (r"/login", LoginHandler),

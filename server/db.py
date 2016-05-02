@@ -112,6 +112,13 @@ def add_user(name, email, password):
         password=hashpw)
     return True, result.inserted_primary_key[0]
 
+def add_deck(data):
+    conn = get_conn()
+    result = conn.execute(decks.insert(),
+        name=data["name"],
+        student=data["student"],
+        owner_id=1)
+
 def login(email, password):
     conn = get_conn()
 
