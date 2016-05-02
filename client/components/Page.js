@@ -3,6 +3,7 @@ import { connect } from 'react-redux'
 import DeckList from './DeckList'
 import CardList from './CardList'
 import DeckEdit from './DeckEdit'
+import NewDeck from './NewDeck'
 
 class Page extends React.Component {
   render() {
@@ -13,6 +14,8 @@ class Page extends React.Component {
             return <DeckEdit />
         case 1:
             return <CardList />
+        case 'newDeck':
+            return <NewDeck />
         default:
             throw("Unknown page: " + this.props.page)
     }

@@ -8,7 +8,7 @@ import { requestDecks } from './reducers'
 
 let store = createStore(decksApp)
 
-setInterval(() => requestDecks(store), 1000)
+requestDecks(store)
 
 render(
   <Provider store={store}>

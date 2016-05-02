@@ -6,22 +6,11 @@ class Header extends React.Component {
   render() {
     return(
       <div>
-      This is a header. We're in mode: {this.props.mode}
-      <br/>
-      <button onClick={this.props.onNextMode} className="pure-button">Press Me</button>
+      This is a header.
       </div>
     )
   }
 }
 
-const mapStateToProps = (state) => {
-  return { mode: state.mode }
-}
-
-const mapDispatchToProps = (dispatch) => {
-  return {
-    onNextMode: () => { dispatch(nextMode()) }
-  }
-}
-
-export default connect(mapStateToProps, mapDispatchToProps)(Header)
+export default Header
+//export default connect(mapStateToProps, mapDispatchToProps)(Header)
