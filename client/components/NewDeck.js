@@ -1,8 +1,11 @@
 import React from 'react'
 import { connect } from 'react-redux'
+import { nextId } from '../util'
 
 class NewDeck extends React.Component {
   render() {
+    let name, student
+
     return(
       <div className="pure-g">
         <div className="pure-u-1-5">
@@ -13,15 +16,15 @@ class NewDeck extends React.Component {
             <fieldset>
               <div className="pure-control-group">
                 <label for="name">Name</label>
-                <input id="name" type="text" placeholder="Name"/>
+                <input ref={node => { name = node }} id="name" type="text" placeholder="Name"/>
               </div>
 
               <div className="pure-control-group">
                 <label for="student">Student</label>
-                <input id="student" type="text" placeholder="Student"/>
+                <input ref={node => { student = node }} id="student" type="text" placeholder="Student"/>
               </div>
               <div className="pure-controls">
-                <button className="pure-button pure-button-primary">Save</button>
+                <button type="button" onClick={()=>this.props.onSave(name.value, student.value)} className="pure-button pure-button-primary">Save</button>
               </div>
             </fieldset>
           </form>
@@ -39,7 +42,16 @@ const mapStateToProps = (state) => {
 
 const mapDispatchToProps = (dispatch) => {
   return {
-    //onNextMode: () => { dispatch(nextMode()) }
+    onSave: (name, student) => {
+      dispatch({
+        type: 'ADD_DECK',
+        deck: {
+          id: nextId(),
+          name: name,
+          student: student
+        }}),
+      dispatch({ type: 'GOTO_PAGE', page: 'DECK_LIST' })
+    }
   }
 }
 

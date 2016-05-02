@@ -26,7 +26,7 @@ const mapStateToProps = (state) => {
 
 const mapDispatchToProps = (dispatch) => {
   return {
-    deckEdit: (id) => { dispatch({ id, type: 'DECK_EDIT' }) },
+    deckEdit: (id) => { dispatch({ type: 'GOTO_PAGE', page: 'DECK_EDIT' }) },
     newDeck:  ()   => { dispatch({ type: 'GOTO_PAGE', page: 'newDeck' }) },
   }
 }
