@@ -5,7 +5,7 @@ import { createStore } from 'redux'
 import decksApp from './reducers'
 import App from './components/App'
 import { requestDecks } from './reducers'
-import { Router, Route, IndexRedirect, Link, hashHistory } from 'react-router'
+import { Router, Route, IndexRedirect, Link, browserHistory } from 'react-router'
 import NewDeck from './components/NewDeck'
 import DeckList from './components/DeckList'
 import DeckEdit from './components/DeckEdit'
@@ -16,10 +16,10 @@ requestDecks(store)
 
 render(
   <Provider store={store}>
-    <Router history={hashHistory}>
+    <Router history={browserHistory}>
       <Route path="/" component={App}>
-        <IndexRedirect to="decklist" />
-        <Route path="decklist" component={DeckList} />
+        <IndexRedirect to="decks" />
+        <Route path="decks" component={DeckList} />
         <Route path="add_deck" component={NewDeck} />
       </Route>
     </Router>

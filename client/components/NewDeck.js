@@ -27,7 +27,7 @@ class NewDeck extends React.Component {
               <div className="pure-controls">
                 <button type="button" onClick={()=>{
                   this.props.onSave(name.value.trim(), student.value.trim())
-                  this.props.router.push('/decklist')
+                  this.props.router.push('/decks')
                 }}
                 className="pure-button pure-button-primary">Save</button>
               </div>

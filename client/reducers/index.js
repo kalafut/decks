@@ -32,7 +32,7 @@ const decksApp = (state = defaultState, action) => {
       case 'ADD_DECK':
           let deck = action.deck
           request
-          .post('/decks')
+          .post('/api/decks')
           .send({name:deck.name, student:deck.student})
           .end((err, res) => {})
 
@@ -46,7 +46,7 @@ const decksApp = (state = defaultState, action) => {
 
 export const requestDecks = (store) => {
     request
-    .get('/decks')
+    .get('/api/decks')
     .end((err, res) => {
       store.dispatch({
         type: 'LOAD_DECKS',

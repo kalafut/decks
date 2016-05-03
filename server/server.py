@@ -147,13 +147,13 @@ def make_app(config):
     return tornado.web.Application([
         #(r"/guid/(.*)", MainHandler, dict(store=mysql.MySQLStore(config))),
         #(r"/guid", MainHandler, dict(store=mysql.MySQLStore(config))),
-        (r"/decks", DeckHandler),
-        (r"/decks/(.*)", DeckHandler),
+        (r"/api/decks", DeckHandler),
+        (r"/api/decks/(.*)", DeckHandler),
         (r"/word/add", AddHandler),
         (r"/words", WordsHandler),
         (r"/login", LoginHandler),
         (r"/signup", SignupHandler),
-        (r"/", HomeHandler),
+        (r"/.*", HomeHandler),
         #(r"/static/(.*)", tornado.web.StaticFileHandler, dict(path=settings['static_path'])),
     ], **settings)
 
