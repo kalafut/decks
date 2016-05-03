@@ -11,7 +11,6 @@ const App = () => (
   <div>
     <Header/>
     <Page />
-    Something below the page.
   </div>
 )
 

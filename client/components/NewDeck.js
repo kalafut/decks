@@ -24,7 +24,7 @@ class NewDeck extends React.Component {
                 <input ref={node => { student = node }} id="student" type="text" placeholder="Student"/>
               </div>
               <div className="pure-controls">
-                <button type="button" onClick={()=>this.props.onSave(name.value, student.value)} className="pure-button pure-button-primary">Save</button>
+                <button type="button" onClick={()=>this.props.onSave(name.value.trim(), student.value.trim())} className="pure-button pure-button-primary">Save</button>
               </div>
             </fieldset>
           </form>
@@ -43,13 +43,15 @@ const mapStateToProps = (state) => {
 const mapDispatchToProps = (dispatch) => {
   return {
     onSave: (name, student) => {
-      dispatch({
-        type: 'ADD_DECK',
-        deck: {
-          id: nextId(),
-          name: name,
-          student: student
-        }}),
+      if(name.length > 0) {
+        dispatch({
+          type: 'ADD_DECK',
+          deck: {
+            id: nextId(),
+            name: name,
+            student: student
+          }})
+      }
       dispatch({ type: 'GOTO_PAGE', page: 'DECK_LIST' })
     }
   }

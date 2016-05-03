@@ -4,17 +4,27 @@ import { connect } from 'react-redux'
 class DeckList extends React.Component {
   render() {
     return(
-      <div>
-      <ul>
-        {this.props.decks.map((deck) => {
-          let name = deck.name
-          if(deck.student !== null) {
-            name += ` (${deck.student})`
-          }
-          return (<li key={deck.id}>{name} <button onClick={() => this.props.deckEdit(deck.id)}>Edit</button></li>)
-        })}
-      </ul>
-      <button onClick={this.props.newDeck}>Add</button>
+      <div className="pure-g">
+        <div className="pure-u-1-5">
+        </div>
+        <div className="pure-u-3-5">
+          <table>
+            <tbody>
+              {this.props.decks.map((deck) => {
+                let name = deck.name
+                if(deck.student !== null) {
+                  name += ` (${deck.student})`
+                }
+                return (
+                  <tr key={deck.id}><td><a href="#" onClick={() => this.props.deckEdit(deck.id)}>{name}</a></td></tr>
+                  )
+              })}
+            </tbody>
+          </table>
+          <button className="pure-button" onClick={this.props.newDeck}>Add</button>
+        </div>
+        <div className="pure-u-1-5">
+        </div>
       </div>
     )
   }
