@@ -1,6 +1,7 @@
 import React from 'react'
 import { connect } from 'react-redux'
 import { nextId } from '../util'
+import { withRouter } from 'react-router'
 
 class NewDeck extends React.Component {
   render() {
@@ -24,7 +25,11 @@ class NewDeck extends React.Component {
                 <input ref={node => { student = node }} id="student" type="text" placeholder="Student"/>
               </div>
               <div className="pure-controls">
-                <button type="button" onClick={()=>this.props.onSave(name.value.trim(), student.value.trim())} className="pure-button pure-button-primary">Save</button>
+                <button type="button" onClick={()=>{
+                  this.props.onSave(name.value.trim(), student.value.trim())
+                  this.props.router.push('/decklist')
+                }}
+                className="pure-button pure-button-primary">Save</button>
               </div>
             </fieldset>
           </form>
@@ -52,10 +57,10 @@ const mapDispatchToProps = (dispatch) => {
             student: student
           }})
       }
-      dispatch({ type: 'GOTO_PAGE', page: 'DECK_LIST' })
+      //dispatch({ type: 'GOTO_PAGE', page: 'DECK_LIST' })
     }
   }
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(NewDeck)
+export default withRouter(connect(mapStateToProps, mapDispatchToProps)(NewDeck))
 

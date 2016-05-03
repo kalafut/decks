@@ -1,5 +1,6 @@
 import React from 'react'
 import { connect } from 'react-redux'
+import { Link } from 'react-router'
 
 class DeckList extends React.Component {
   render() {
@@ -21,7 +22,7 @@ class DeckList extends React.Component {
               })}
             </tbody>
           </table>
-          <button className="pure-button" onClick={this.props.newDeck}>Add</button>
+          <Link className="pure-button" to="/add_deck">Add</Link>
         </div>
         <div className="pure-u-1-5">
         </div>
@@ -37,7 +38,6 @@ const mapStateToProps = (state) => {
 const mapDispatchToProps = (dispatch) => {
   return {
     deckEdit: (id) => { dispatch({ type: 'GOTO_PAGE', page: 'DECK_EDIT' }) },
-    newDeck:  ()   => { dispatch({ type: 'GOTO_PAGE', page: 'newDeck' }) },
   }
 }
 
