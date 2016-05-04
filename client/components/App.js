@@ -13,8 +13,6 @@ class App extends React.Component {
   render() {
     return (
       <div>
-        <h1>Hi!</h1>
-        <Link to="/decklist">Test</Link>
         <Header/>
         {this.props.children}
       </div>

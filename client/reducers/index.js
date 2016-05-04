@@ -9,14 +9,9 @@ const MODE_CNT = 3
 
 let defaultState = {
   page: 'DECK_LIST',
-  decks: [
-    {id: nextId(), name: "First", student: ""},
-    {id: nextId(), name: "Second", student: "Ben"},
-  ],
-  cards: [
-    { id: nextId(), front: "dog", back: "A furry pet" },
-    { id: nextId(), front: "pizza", back: "A yummy food" },
-  ]
+  decks: {},
+  cards: {},
+  deckcards: {}
 }
 
 const decksApp = (state = defaultState, action) => {
@@ -24,6 +19,12 @@ const decksApp = (state = defaultState, action) => {
       case 'LOAD_DECKS':
           return Object.assign({}, state, {
             decks: action.data.decks
+          })
+      case 'LOAD_DATA':
+          return Object.assign({}, state, {
+            cards: action.data.cards,
+            decks: action.data.decks,
+            deckcards: action.data.deckcards
           })
       case 'GOTO_PAGE':
           return Object.assign({}, state, {
@@ -36,8 +37,11 @@ const decksApp = (state = defaultState, action) => {
           .send({name:deck.name, student:deck.student})
           .end((err, res) => {})
 
+          let decks = Object.assign({}, state.decks, {
+            id: deck
+          })
           return Object.assign({}, state, {
-            decks: [...state.decks, deck]
+            decks: decks
           })
       default:
           return state
@@ -50,6 +54,17 @@ export const requestDecks = (store) => {
     .end((err, res) => {
       store.dispatch({
         type: 'LOAD_DECKS',
+        data: res.body
+      })
+    })
+}
+
+export const loadData = (store) => {
+    request
+    .get('/api/v1/data')
+    .end((err, res) => {
+      store.dispatch({
+        type: 'LOAD_DATA',
         data: res.body
       })
     })

@@ -74,6 +74,25 @@ def get_decks(user_id):
     query.close()
     return results
 
+
+def get_decks2(user_id):
+    conn = get_conn()
+    query = conn.execute(select([decks]).select_from(decks).where(decks.c.owner_id == user_id))
+    return query.fetchall()
+
+
+def get_cards(user_id):
+    conn = get_conn()
+    query = conn.execute(select([cards]).select_from(cards).where(cards.c.owner_id == user_id))
+    return query.fetchall()
+
+
+def get_deckcards2(user_id):
+    conn = get_conn()
+    query = conn.execute(select([deckcards]).select_from(deckcards.join(decks)).where(decks.c.owner_id == user_id))
+    return query.fetchall()
+
+
 def get_deckcards(deck_id):
     conn = get_conn()
     s = select([deckcards.c.id, cards.c.front.label('word'), deckcards.c.box]).select_from(deckcards.join(cards)).where(deckcards.c.deck_id == deck_id)
@@ -111,6 +130,11 @@ def add_user(name, email, password):
         email=email,
         password=hashpw)
     return True, result.inserted_primary_key[0]
+
+def get_data(user_id, since=0):
+    conn = get_conn()
+    result = conn.execute(select([cards]).where(cards.c.owner_id == user_id)).fetchall()
+    return result
 
 def add_deck(data):
     conn = get_conn()

@@ -4,6 +4,12 @@ import { Link } from 'react-router'
 
 class DeckList extends React.Component {
   render() {
+    let decks = []
+
+    for(let id in this.props.decks) {
+      decks.push(this.props.decks[id])
+    }
+
     return(
       <div className="pure-g">
         <div className="pure-u-1-5">
@@ -11,13 +17,13 @@ class DeckList extends React.Component {
         <div className="pure-u-3-5">
           <table>
             <tbody>
-              {this.props.decks.map((deck) => {
+              {decks.map((deck) => {
                 let name = deck.name
                 if(deck.student !== null) {
                   name += ` (${deck.student})`
                 }
                 return (
-                  <tr key={deck.id}><td><a href="#" onClick={() => this.props.deckEdit(deck.id)}>{name}</a></td></tr>
+                  <tr key={deck.id}><td><Link to={`/deck/${deck.id}/edit`}>{name}</Link></td></tr>
                   )
               })}
             </tbody>

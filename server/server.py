@@ -1,5 +1,6 @@
 import json
 import os
+import time
 import tornado.escape # type: ignore
 import tornado.ioloop # type: ignore
 import tornado.web    # type: ignore
@@ -66,6 +67,48 @@ class DeckHandler(BaseHandler):
         if not deck_id:
             results = db.get_decks(1)
             self.write({"decks":results})
+
+    def post(self):
+        data = tornado.escape.json_decode(self.request.body)
+        db.add_deck(data)
+
+class DataHandler(BaseHandler):
+    def get(self, deck_id=None):
+        output = {
+            "object": "full",
+            "timestamp": int(time.time()*1000),
+            "cards": {},
+            "decks": {},
+            "deckcards": {}
+            }
+
+        cards = db.get_cards(1)
+        for row in cards:
+            output["cards"][row["id"]] = {
+                "id": row["id"],
+                "front": row["front"],
+                "back": row["back"]
+                }
+
+        decks = db.get_decks(1)
+        for row in decks:
+            output["decks"][row["id"]] = {
+                "id": row["id"],
+                "name": row["name"],
+                "student": row["student"]
+                }
+
+        deckcards = db.get_deckcards2(1)
+        for row in deckcards:
+            output["deckcards"][row["id"]] = {
+                "id": row["id"],
+                "deck_id": row["deck_id"],
+                "card_id": row["card_id"],
+                "box": row["box"],
+                "status": row["status"]
+                }
+
+        self.write(output)
 
     def post(self):
         data = tornado.escape.json_decode(self.request.body)
@@ -149,6 +192,7 @@ def make_app(config):
         #(r"/guid", MainHandler, dict(store=mysql.MySQLStore(config))),
         (r"/api/decks", DeckHandler),
         (r"/api/decks/(.*)", DeckHandler),
+        (r"/api/v1/data", DataHandler),
         (r"/word/add", AddHandler),
         (r"/words", WordsHandler),
         (r"/login", LoginHandler),
