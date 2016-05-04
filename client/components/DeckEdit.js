@@ -1,6 +1,7 @@
 import React from 'react'
 import { connect } from 'react-redux'
 import { findById } from '../util'
+import { withRouter } from 'react-router'
 
 class DeckEdit extends React.Component {
   deck() {
@@ -9,6 +10,7 @@ class DeckEdit extends React.Component {
   }
 
   render() {
+    let name, student
     let deck = this.props.decks[this.props.params.id]
 
     if(deck === undefined) {
@@ -18,39 +20,41 @@ class DeckEdit extends React.Component {
     } else {
       return(
         <div>
-          <h1>{this.props.decks[this.props.params.id].name}</h1>
-          <form class="pure-form pure-form-aligned">
-            <fieldset>
-              <div class="pure-control-group">
-                <label for="name">Username</label>
-                <input id="name" type="text" placeholder="Username"/>
-              </div>
+          <div className="pure-g">
+            <div className="pure-u-1-5">
+            </div>
+            <div className="pure-u-3-5">
+              <h1>Edit Deck</h1>
+              <form className="pure-form pure-form-aligned">
+                <fieldset>
+                  <div className="pure-control-group">
+                    <label for="name">Name</label>
+                    <input ref={node => { name = node }} id="name" type="text" defaultValue={deck.name}/>
+                  </div>
 
-              <div class="pure-control-group">
-                <label for="password">Password</label>
-                <input id="password" type="password" placeholder="Password"/>
-              </div>
-
-              <div class="pure-control-group">
-                <label for="email">Email Address</label>
-                <input id="email" type="email" placeholder="Email Address"/>
-              </div>
-
-              <div class="pure-control-group">
-                <label for="foo">Supercalifragilistic Label</label>
-                <input id="foo" type="text" placeholder="Enter something here..."/>
-              </div>
-
-              <div class="pure-controls">
-                <label for="cb" class="pure-checkbox">
-                  <input id="cb" type="checkbox"/> I've read the terms and conditions
-                </label>
-
-                <button type="submit" class="pure-button pure-button-primary">Submit</button>
-              </div>
-            </fieldset>
-          </form>
+                  <div className="pure-control-group">
+                    <label for="student">Student</label>
+                    <input ref={node => { student = node }} id="student" type="text" defaultValue={deck.student}/>
+                  </div>
+                  <div className="pure-controls">
+                    <button type="button" onClick={()=>{
+                      let newDeck = {
+                        id: deck.id,
+                        name: name.value.trim(),
+                        student: student.value.trim()
+                      }
+                      this.props.onSave(newDeck)
+                      this.props.router.push('/decks')
+                    }}
+                    className="pure-button pure-button-primary">Save</button>
+                </div>
+              </fieldset>
+            </form>
+          </div>
+          <div class="pure-u-1-5">
+          </div>
         </div>
+      </div>
       )
     }
   }
@@ -66,9 +70,13 @@ const mapStateToProps = (state) => {
 
 const mapDispatchToProps = (dispatch) => {
   return {
-    //onNextMode: () => { dispatch(nextMode()) }
+    onSave: (newDeck) => {
+      dispatch({
+        type: 'UPDATE_DECK',
+        deck: newDeck
+      })
+    }
   }
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(DeckEdit)
-
+export default withRouter(connect(mapStateToProps, mapDispatchToProps)(DeckEdit))

@@ -143,6 +143,13 @@ def add_deck(data):
         student=data["student"],
         owner_id=1)
 
+
+def update_deck(user_id, data):
+    conn = get_conn()
+    conn.execute(decks.update().where(decks.c.id == data["id"])
+                 .where(decks.c.owner_id == user_id)
+                 .values(name=data["name"], student=data["student"]))
+
 def login(email, password):
     conn = get_conn()
 

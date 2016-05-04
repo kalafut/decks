@@ -15,6 +15,8 @@ let defaultState = {
 }
 
 const decksApp = (state = defaultState, action) => {
+  let deck, decks
+
   switch (action.type) {
       case 'LOAD_DECKS':
           return Object.assign({}, state, {
@@ -31,15 +33,28 @@ const decksApp = (state = defaultState, action) => {
             page: action.page
           })
       case 'ADD_DECK':
-          let deck = action.deck
+          deck = action.deck
           request
           .post('/api/decks')
           .send({name:deck.name, student:deck.student})
           .end((err, res) => {})
 
-          let decks = Object.assign({}, state.decks, {
+          decks = Object.assign({}, state.decks, {
             id: deck
           })
+          return Object.assign({}, state, {
+            decks: decks
+          })
+      case 'UPDATE_DECK':
+          deck = action.deck
+          request
+          .put('/api/v1/decks')
+          .send(deck)
+          .end((err, res) => {})
+
+          decks = Object.assign({}, state.decks)
+          decks[deck.id] = deck
+
           return Object.assign({}, state, {
             decks: decks
           })
