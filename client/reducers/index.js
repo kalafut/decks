@@ -1,6 +1,7 @@
 import request from 'superagent'
 import { combineReducers } from 'redux'
 import { nextId } from '../util'
+import update from 'react-addons-update'
 
 const DRILL = 0
 const EDIT = 1
@@ -19,14 +20,14 @@ const decksApp = (state = defaultState, action) => {
 
   switch (action.type) {
       case 'LOAD_DECKS':
-          return Object.assign({}, state, {
+          return update(state, {
             decks: action.data.decks
           })
       case 'LOAD_DATA':
-          return Object.assign({}, state, {
-            cards: action.data.cards,
-            decks: action.data.decks,
-            deckcards: action.data.deckcards
+          return update(state, {
+            cards: { $set: action.data.cards },
+            decks: { $set: action.data.decks },
+            deckcards: { $set: action.data.deckcards }
           })
       case 'GOTO_PAGE':
           return Object.assign({}, state, {
@@ -39,12 +40,8 @@ const decksApp = (state = defaultState, action) => {
           .send({name:deck.name, student:deck.student})
           .end((err, res) => {})
 
-          decks = Object.assign({}, state.decks, {
-            id: deck
-          })
-          return Object.assign({}, state, {
-            decks: decks
-          })
+          return update(state, { decks: { [deck.id]: { $set: deck } } })
+
       case 'UPDATE_DECK':
           deck = action.deck
           request
@@ -52,12 +49,8 @@ const decksApp = (state = defaultState, action) => {
           .send(deck)
           .end((err, res) => {})
 
-          decks = Object.assign({}, state.decks)
-          decks[deck.id] = deck
+          return update(state, { decks: { [deck.id]: { $set: deck } } })
 
-          return Object.assign({}, state, {
-            decks: decks
-          })
       case 'DELETE_DECK':
           let id = action.id
           request
