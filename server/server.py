@@ -73,9 +73,12 @@ class DeckHandler(BaseHandler):
         db.add_deck(data)
 
 class DeckHandler2(BaseHandler):
-    def put(self):
+    def put(self, id_):
         data = tornado.escape.json_decode(self.request.body)
-        db.update_deck(1, data)
+        db.update_deck(1, id_, data)
+
+    def delete(self, id_):
+        db.delete_deck(1, id_)
 
 class DataHandler(BaseHandler):
     def get(self, deck_id=None):
@@ -197,7 +200,7 @@ def make_app(config):
         #(r"/guid", MainHandler, dict(store=mysql.MySQLStore(config))),
         (r"/api/decks", DeckHandler),
         (r"/api/decks/(.*)", DeckHandler),
-        (r"/api/v1/decks", DeckHandler2),
+        (r"/api/v1/decks/(.*)", DeckHandler2),
         (r"/api/v1/data", DataHandler),
         (r"/word/add", AddHandler),
         (r"/words", WordsHandler),

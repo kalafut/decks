@@ -48,12 +48,24 @@ const decksApp = (state = defaultState, action) => {
       case 'UPDATE_DECK':
           deck = action.deck
           request
-          .put('/api/v1/decks')
+          .put(`/api/v1/decks/${deck.id}`)
           .send(deck)
           .end((err, res) => {})
 
           decks = Object.assign({}, state.decks)
           decks[deck.id] = deck
+
+          return Object.assign({}, state, {
+            decks: decks
+          })
+      case 'DELETE_DECK':
+          let id = action.id
+          request
+          .delete(`/api/v1/decks/${id}`)
+          .end((err, res) => {})
+
+          decks = Object.assign({}, state.decks)
+          delete(decks[id])
 
           return Object.assign({}, state, {
             decks: decks

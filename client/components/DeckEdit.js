@@ -46,7 +46,14 @@ class DeckEdit extends React.Component {
                       this.props.onSave(newDeck)
                       this.props.router.push('/decks')
                     }}
-                    className="pure-button pure-button-primary">Save</button>
+                    className="pure-button pure-button-primary">Save
+                  </button>
+                    <button type="button" onClick={()=>{
+                      this.props.onDelete(deck.id)
+                      this.props.router.push('/decks')
+                    }}
+                    className="pure-button button-error">Delete
+                  </button>
                 </div>
               </fieldset>
             </form>
@@ -74,6 +81,13 @@ const mapDispatchToProps = (dispatch) => {
       dispatch({
         type: 'UPDATE_DECK',
         deck: newDeck
+      })
+    },
+    onDelete: (id) => {
+      console.log(id)
+      dispatch({
+        type: 'DELETE_DECK',
+        id: id
       })
     }
   }

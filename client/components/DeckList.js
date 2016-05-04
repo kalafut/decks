@@ -19,7 +19,7 @@ class DeckList extends React.Component {
             <tbody>
               {decks.map((deck) => {
                 let name = deck.name
-                if(deck.student !== null) {
+                if(deck.student !== "") {
                   name += ` (${deck.student})`
                 }
                 return (

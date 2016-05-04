@@ -45,7 +45,7 @@ decks = Table('decks', metadata,
         Column('id', Integer, primary_key=True),
         Column('name', String(255), nullable=False),
         Column('owner_id', Integer, ForeignKey("users.id", ondelete='CASCADE'), nullable=False),
-        Column('student', String(255), nullable=True),
+        Column('student', String(255), nullable=False, default=""),
         )
 
 deckcards = Table('deckcards', metadata,
@@ -144,11 +144,19 @@ def add_deck(data):
         owner_id=1)
 
 
-def update_deck(user_id, data):
+def update_deck(user_id, id_, data):
     conn = get_conn()
-    conn.execute(decks.update().where(decks.c.id == data["id"])
+    conn.execute(decks.update()
+                 .where(decks.c.id == id_)
                  .where(decks.c.owner_id == user_id)
                  .values(name=data["name"], student=data["student"]))
+
+
+def delete_deck(user_id, id_):
+    conn = get_conn()
+    conn.execute(decks.delete()
+                 .where(decks.c.id == id_)
+                 .where(decks.c.owner_id == user_id))
 
 def login(email, password):
     conn = get_conn()
@@ -208,7 +216,7 @@ def create_all():
         {'id':3, 'front':'pizza', 'owner_id':1},
         ])
     conn.execute(decks.insert(), [
-        {'name': "First Deck", 'owner_id': 1, 'student': None},
+        {'name': "First Deck", 'owner_id': 1, 'student': ""},
         {'name': "Second Deck", 'owner_id': 1, 'student': "Ben"},
         ])
     conn.execute(deckcards.insert(), [
