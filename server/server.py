@@ -6,6 +6,7 @@ import tornado.ioloop # type: ignore
 import tornado.web    # type: ignore
 
 import db
+import api
 
 class BaseHandler(tornado.web.RequestHandler):
     def get_current_user(self) -> db.User:
@@ -72,7 +73,39 @@ class DeckHandler(BaseHandler):
         data = tornado.escape.json_decode(self.request.body)
         db.add_deck(data)
 
+
+class ApiHandler(BaseHandler):
+    def get(self, id_=None):
+        output = api.get(self.resource, user_id=1, id_=id_, id_dict=True)
+        self.write(output)
+
+    def post(self, id_=None):
+        data = tornado.escape.json_decode(self.request.body)
+        output = api.post(self.resource, data, user_id=1)
+        self.write(output)
+
+    def put(self, id_=None):
+        data = tornado.escape.json_decode(self.request.body)
+        output = api.put(self.resource, data, id_=id_, user_id=1)
+        self.write(output)
+
+    def delete(self, id_=None):
+        api.delete(self.resource, id_=id_, user_id=1)
+
+class CardHandler(ApiHandler):
+    resource = api.cards
+
+
 class DeckHandler2(BaseHandler):
+    def get(self, id_=None):
+        output = api.get(api.decks, user_id=1, id_=id_, id_dict=True)
+        self.write(output)
+
+    def post(self, id_=None):
+        data = tornado.escape.json_decode(self.request.body)
+        output = api.post(api.decks, data, user_id=1)
+        self.write(output)
+
     def put(self, id_):
         data = tornado.escape.json_decode(self.request.body)
         db.update_deck(1, id_, data)
@@ -98,23 +131,14 @@ class DataHandler(BaseHandler):
                 "back": row["back"]
                 }
 
-        decks = db.get_decks(1)
-        for row in decks:
-            output["decks"][row["id"]] = {
-                "id": row["id"],
-                "name": row["name"],
-                "student": row["student"]
-                }
+        decks = api.get(api.decks, 1)
 
-        deckcards = db.get_deckcards2(1)
+        for row in decks:
+            output["decks"][row["id"]] = row
+
+        deckcards = api.get(api.deckcards, 1)
         for row in deckcards:
-            output["deckcards"][row["id"]] = {
-                "id": row["id"],
-                "deck_id": row["deck_id"],
-                "card_id": row["card_id"],
-                "box": row["box"],
-                "status": row["status"]
-                }
+            output["deckcards"][row["id"]] = row
 
         self.write(output)
 
@@ -201,6 +225,9 @@ def make_app(config):
         (r"/api/decks", DeckHandler),
         (r"/api/decks/(.*)", DeckHandler),
         (r"/api/v1/decks/(.*)", DeckHandler2),
+        (r"/api/v1/decks", DeckHandler2),
+        (r"/api/v1/cards/(.*)", CardHandler),
+        (r"/api/v1/cards", CardHandler),
         (r"/api/v1/data", DataHandler),
         (r"/word/add", AddHandler),
         (r"/words", WordsHandler),

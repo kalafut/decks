@@ -55,7 +55,8 @@ deckcards = Table('deckcards', metadata,
         Column('box', Integer, nullable=False, default=0),
         Column('status', Integer, nullable=False, default=0),
         Column('show_count', Integer, nullable=False, default=0),
-        Column('last_shown', Integer, nullable=False, default=0)
+        Column('last_shown', Integer, nullable=False, default=0),
+        Column('owner_id', Integer, ForeignKey("users.id", ondelete='CASCADE'), nullable=False)
         )
 
 def get_conn():
@@ -220,9 +221,9 @@ def create_all():
         {'name': "Second Deck", 'owner_id': 1, 'student': "Ben"},
         ])
     conn.execute(deckcards.insert(), [
-        {'deck_id':1, 'card_id':1},
-        {'deck_id':1, 'card_id':2},
-        {'deck_id':1, 'card_id':3}
+        {'deck_id':1, 'card_id':1, 'owner_id': 1},
+        {'deck_id':1, 'card_id':2, 'owner_id': 1},
+        {'deck_id':1, 'card_id':3, 'owner_id': 1}
         ])
 
 @event.listens_for(Engine, "connect")
