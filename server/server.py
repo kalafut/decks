@@ -53,6 +53,7 @@ class AddHandler(BaseHandler):
         data = tornado.escape.json_decode(self.request.body)
         db.add_card(data)
 
+
 class WordsHandler(BaseHandler):
     def get(self):
         results = db.get_deckcards(1)
@@ -62,16 +63,6 @@ class WordsHandler(BaseHandler):
     def post(self):
         data = tornado.escape.json_decode(self.request.body)
         db.update_deckcards(data)
-
-class DeckHandler(BaseHandler):
-    def get(self, deck_id=None):
-        if not deck_id:
-            results = db.get_decks(1)
-            self.write({"decks":results})
-
-    def post(self):
-        data = tornado.escape.json_decode(self.request.body)
-        db.add_deck(data)
 
 
 class ApiHandler(BaseHandler):
@@ -96,22 +87,9 @@ class CardHandler(ApiHandler):
     resource = api.cards
 
 
-class DeckHandler2(BaseHandler):
-    def get(self, id_=None):
-        output = api.get(api.decks, user_id=1, id_=id_, id_dict=True)
-        self.write(output)
+class DeckHandler(ApiHandler):
+    resource = api.decks
 
-    def post(self, id_=None):
-        data = tornado.escape.json_decode(self.request.body)
-        output = api.post(api.decks, data, user_id=1)
-        self.write(output)
-
-    def put(self, id_):
-        data = tornado.escape.json_decode(self.request.body)
-        db.update_deck(1, id_, data)
-
-    def delete(self, id_):
-        db.delete_deck(1, id_)
 
 class DataHandler(BaseHandler):
     def get(self, deck_id=None):
@@ -220,12 +198,8 @@ def make_app(config):
         "xsrf_cookies": False,  # TODO: put this back in
     }
     return tornado.web.Application([
-        #(r"/guid/(.*)", MainHandler, dict(store=mysql.MySQLStore(config))),
-        #(r"/guid", MainHandler, dict(store=mysql.MySQLStore(config))),
-        (r"/api/decks", DeckHandler),
-        (r"/api/decks/(.*)", DeckHandler),
-        (r"/api/v1/decks/(.*)", DeckHandler2),
-        (r"/api/v1/decks", DeckHandler2),
+        (r"/api/v1/decks/(.*)", DeckHandler),
+        (r"/api/v1/decks", DeckHandler),
         (r"/api/v1/cards/(.*)", CardHandler),
         (r"/api/v1/cards", CardHandler),
         (r"/api/v1/data", DataHandler),

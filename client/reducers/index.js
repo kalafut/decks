@@ -21,7 +21,7 @@ const decksApp = (state = defaultState, action) => {
   switch (action.type) {
       case 'LOAD_DECKS':
           return update(state, {
-            decks: action.data.decks
+            decks: { $set: action.data }
           })
       case 'LOAD_DATA':
           return update(state, {
@@ -36,8 +36,8 @@ const decksApp = (state = defaultState, action) => {
       case 'ADD_DECK':
           deck = action.deck
           request
-          .post('/api/decks')
-          .send({name:deck.name, student:deck.student})
+          .post('/api/v1/decks')
+          .send(deck)
           .end((err, res) => {
             // TODO need to update temp ID with server ID here.
           })
@@ -83,10 +83,10 @@ export const requestDecks = (store) => {
 
 export const loadData = (store) => {
     request
-    .get('/api/v1/data')
+    .get('/api/v1/decks')
     .end((err, res) => {
       store.dispatch({
-        type: 'LOAD_DATA',
+        type: 'LOAD_DECKS',
         data: res.body
       })
     })
