@@ -38,7 +38,9 @@ const decksApp = (state = defaultState, action) => {
           request
           .post('/api/decks')
           .send({name:deck.name, student:deck.student})
-          .end((err, res) => {})
+          .end((err, res) => {
+            // TODO need to update temp ID with server ID here.
+          })
 
           return update(state, { decks: { [deck.id]: { $set: deck } } })
 
