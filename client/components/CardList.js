@@ -1,5 +1,4 @@
 import React from 'react'
-import { connect } from 'react-redux'
 
 class CardList extends React.Component {
   render() {
@@ -20,15 +19,5 @@ class CardList extends React.Component {
   }
 }
 
-const mapStateToProps = (state) => {
-  return { cards: state.cards }
-}
-
-const mapDispatchToProps = (dispatch) => {
-  return {
-    //onNextMode: () => { dispatch(nextMode()) }
-  }
-}
-
-export default connect(mapStateToProps, mapDispatchToProps)(CardList)
+export default CardList
 

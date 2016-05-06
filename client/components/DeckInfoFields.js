@@ -24,7 +24,7 @@ export default class DeckInfoFields extends React.Component {
     if(this.props.onDelete !== undefined) {
       deleteButton =
         <button type="button" onClick={()=>{
-          this.props.onDelete(this.props.deck)
+          this.props.onDelete(this.props.deck.id)
           this.props.onEnd()
         }}
         className="pure-button button-error">Delete
@@ -35,7 +35,7 @@ export default class DeckInfoFields extends React.Component {
         <div className="pure-u-1-5">
         </div>
         <div className="pure-u-3-5">
-          <h1>New Deck</h1>
+          <h1>New/Edit Deck</h1>
           <form className="pure-form pure-form-aligned">
             <fieldset>
               <div className="pure-control-group">

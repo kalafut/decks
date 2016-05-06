@@ -1,5 +1,4 @@
 import React from 'react'
-import { connect } from 'react-redux'
 import { Link } from 'react-router'
 
 class DeckList extends React.Component {
@@ -37,14 +36,4 @@ class DeckList extends React.Component {
   }
 }
 
-const mapStateToProps = (state) => {
-  return { decks: state.decks }
-}
-
-const mapDispatchToProps = (dispatch) => {
-  return {
-    deckEdit: (id) => { dispatch({ type: 'GOTO_PAGE', page: 'DECK_EDIT' }) },
-  }
-}
-
-export default connect(mapStateToProps, mapDispatchToProps)(DeckList)
+export default DeckList
