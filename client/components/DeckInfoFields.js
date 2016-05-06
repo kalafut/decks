@@ -1,5 +1,4 @@
 import React from 'react'
-import update from 'react-addons-update'
 
 export default class DeckInfoFields extends React.Component {
   constructor(props) {
@@ -49,8 +48,9 @@ export default class DeckInfoFields extends React.Component {
               </div>
               <div className="pure-controls">
                 <button type="button" onClick={()=>{
-                  let deck = update(this.props.deck, { name: { $set: this.state.name }, student: { $set: this.state.student } })
-                  this.props.onSave(deck)
+                  this.props.onSave(
+                    this.props.deck.set("name", this.state.name.trim()).set("student", this.state.student.trim())
+                  )
                   this.props.onEnd()
                 }}
                 className="pure-button pure-button-primary">Save</button>

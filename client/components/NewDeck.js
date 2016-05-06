@@ -4,11 +4,17 @@ import { withRouter } from 'react-router'
 import DeckInfoFields from './DeckInfoFields'
 
 class NewDeck extends React.Component {
+  addDeck(deck) {
+    if(deck.name.length > 0) {
+      this.props.addDeck(deck)
+    }
+  }
+
   render() {
     let deck = { id: nextId(), name: "", student: "" }
 
     return (
-      <DeckInfoFields deck={deck} onSave={(deck) => {this.props.addDeck(deck)}} onEnd={() => { this.props.router.push('/decks') }} />
+      <DeckInfoFields deck={deck} onSave={(deck) => {this.addDeck(deck)}} onEnd={() => { this.props.router.push('/decks') }} />
     )
   }
 }
