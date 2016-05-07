@@ -13,8 +13,15 @@ def get(resource, user_id=None, id_=None, id_dict=False):
     conn = db.get_conn()
     stmt = select([resource.table]).select_from(resource.table)
 
-    if resource.has_user_id:
-        stmt = stmt.where(resource.table.c.owner_id == user_id)
+    perms = db.get_deck_perms(user_id)
+    perm_decks = [x[0] for x in perms]
+
+    if resource == decks:
+        stmt = stmt.where(resource.table.c.id.in_(perm_decks))
+    elif resource == deckcards:
+        stmt = stmt.where(resource.table.c.deck_id.in_(perm_decks))
+    elif resource == cards:
+        stmt = select([resource.table]).select_from(resource.table.join(deckcards.table)).where(deckcards.table.c.deck_id.in_(perm_decks))
 
     if id_ is not None:
         stmt = stmt.where(resource.table.c.id == id_)
@@ -44,7 +51,7 @@ def put(resource, data, id_, user_id=None):
     table = resource.table
     conn.execute(table.update()
             .where(table.c.id == id_)
-            .where(table.c.owner_id == user_id)
+            #.where(table.c.owner_id == user_id)
             .values(data))
     return get(resource, user_id=user_id, id_=id_, id_dict=True)
 
@@ -55,6 +62,8 @@ def delete(resource, id_, user_id=None):
     conn.execute(table.delete()
                  .where(table.c.id == id_)
                  .where(table.c.owner_id == user_id))
+
+
 
 def make_id_dict(rows):
     output = {}

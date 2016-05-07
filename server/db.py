@@ -1,11 +1,12 @@
 import collections
 import string
+import sys
 import typing
 from random import SystemRandom
 
 import bcrypt
 import sqlite3                             # type: ignore
-from sqlalchemy import Table, Column, Integer, String, ForeignKey, MetaData # type: ignore
+from sqlalchemy import Table, Column, Integer, String, ForeignKey, MetaData, UniqueConstraint # type: ignore
 from sqlalchemy import create_engine       # type: ignore
 from sqlalchemy.sql import select, delete  # type: ignore
 from sqlalchemy.engine import Engine       # type: ignore
@@ -36,14 +37,22 @@ cards = Table('cards', metadata,
         Column('id', Integer, primary_key=True),
         Column('front', String(255), nullable=False),
         Column('back', String(255), nullable=False, default=""),
-        Column('owner_id', Integer, ForeignKey("users.id", ondelete='CASCADE'), nullable=False)
         )
 
 decks = Table('decks', metadata,
         Column('id', Integer, primary_key=True),
         Column('name', String(255), nullable=False),
-        Column('owner_id', Integer, ForeignKey("users.id", ondelete='CASCADE'), nullable=False),
         Column('student', String(255), nullable=False, default=""),
+        )
+
+# 0 - Owner, 1 - Editor, 2 - User, 3 - Viewer
+# deckperms apply to any included cards
+deckperms = Table('deckperms', metadata,
+        Column('id', Integer, primary_key=True),
+        Column('user_id', Integer, ForeignKey("users.id", ondelete='CASCADE'), nullable=False),
+        Column('deck_id', Integer, ForeignKey('decks.id', ondelete='CASCADE'), nullable=False),
+        Column('permission', Integer, nullable=False, default=0),
+        UniqueConstraint('user_id', 'deck_id')
         )
 
 deckcards = Table('deckcards', metadata,
@@ -54,7 +63,6 @@ deckcards = Table('deckcards', metadata,
         Column('status', Integer, nullable=False, default=0),
         Column('show_count', Integer, nullable=False, default=0),
         Column('last_shown', Integer, nullable=False, default=0),
-        Column('owner_id', Integer, ForeignKey("users.id", ondelete='CASCADE'), nullable=False)
         )
 
 def get_conn():
@@ -188,6 +196,29 @@ def get_current_user(session_id: str) -> User:
 
     return User(id=user.id, name=user.name, email=user.email)
 
+
+def set_deck_perm(user_id, deck_id, perm):
+    conn = get_conn()
+    table = deckperms
+    conn.execute(table.delete()
+                 .where(table.c.user_id == user_id)
+                 .where(table.c.deck_id == deck_id))
+
+    conn.execute(table.insert(), {"user_id": user_id, "deck_id": deck_id, "permission": perm})
+
+
+def get_deck_perms(user_id):
+    conn = get_conn()
+    table = deckperms
+    result = conn.execute(select([deckperms]).where(table.c.user_id == user_id))
+
+    perms = []
+    for row in result:
+        perms.append((row["deck_id"], row["permission"]))
+
+    return perms
+
+
 def create_session(user):
     session_id = random_session_id()
 
@@ -239,4 +270,5 @@ def set_sqlite_pragma(dbapi_connection, connection_record):
     cursor = dbapi_connection.cursor()
     cursor.execute("PRAGMA foreign_keys=ON")
     cursor.close()
+
 

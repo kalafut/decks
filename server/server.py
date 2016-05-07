@@ -91,6 +91,10 @@ class DeckHandler(ApiHandler):
     resource = api.decks
 
 
+class DeckCardHandler(ApiHandler):
+    resource = api.deckcards
+
+
 class DataHandler(BaseHandler):
     def get(self, deck_id=None):
         output = {
@@ -202,6 +206,8 @@ def make_app(config):
         (r"/api/v1/decks", DeckHandler),
         (r"/api/v1/cards/(.*)", CardHandler),
         (r"/api/v1/cards", CardHandler),
+        (r"/api/v1/deckcards/(.*)", DeckCardHandler),
+        (r"/api/v1/deckcards", DeckCardHandler),
         (r"/api/v1/data", DataHandler),
         (r"/word/add", AddHandler),
         (r"/words", WordsHandler),

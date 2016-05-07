@@ -45,7 +45,8 @@ def test_tables(db_preloaded):
         "decks",
         "cards",
         "sessions",
-        "deckcards"
+        "deckcards",
+        "deckperms"
         ]
 
     tables = db.engine.execute("SELECT name FROM sqlite_master WHERE type='table'").fetchall()
@@ -55,9 +56,12 @@ def test_decks(db):
     db.engine.execute(_db.users.insert(), id=1, name="Jim", email="", password="")
     db.engine.execute(_db.users.insert(), id=2, name="Jim", email="", password="")
     db.engine.execute(_db.decks.insert(), [
-        {'name': "First", 'owner_id': 1, 'student': ""},
-        {'name': "Second", 'owner_id': 1, 'student': ""},
-        {'name': "Second", 'owner_id': 2, 'student': ""},
+        {'name': "First", 'student': ""},
+        {'name': "Second", 'student': ""},
+        ])
+    db.engine.execute(_db.deckperms.insert(), [
+        {"user_id": 1, "deck_id": 1, "permission": 0},
+        {"user_id": 1, "deck_id": 2, "permission": 0},
         ])
 
     decks = api.get(api.decks, user_id=1)
