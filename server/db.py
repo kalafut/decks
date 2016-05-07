@@ -11,10 +11,8 @@ from sqlalchemy.sql import select, delete  # type: ignore
 from sqlalchemy.engine import Engine       # type: ignore
 from sqlalchemy import event               # type: ignore
 
-DB_NAME = 'sqlite:///test.db'
 metadata = MetaData()
-
-__conn = None
+engine = None
 prng = SystemRandom()
 
 User = collections.namedtuple('User', ['id', 'name', 'email'])
@@ -60,12 +58,7 @@ deckcards = Table('deckcards', metadata,
         )
 
 def get_conn():
-    global __conn
-
-    if not __conn:
-        engine = create_engine(DB_NAME)
-        __conn = engine.connect()
-    return __conn
+    return engine.connect()
 
 def get_decks(user_id):
     conn = get_conn()
@@ -205,26 +198,33 @@ def create_session(user):
 def random_session_id():
     return "".join([prng.choice(string.ascii_letters) for _ in range(30)])
 
-def create_all():
-    engine = create_engine('sqlite:///test.db')
-    metadata.create_all(engine)
 
-    conn = get_conn()
-    conn.execute(users.insert(), id=1, name="Jim", email="jim@kalafut.net", password="password")
-    conn.execute(cards.insert(), [
-        {'id':1, 'front':'dog', 'owner_id':1},
-        {'id':2, 'front':'cat', 'owner_id':1},
-        {'id':3, 'front':'pizza', 'owner_id':1},
-        ])
-    conn.execute(decks.insert(), [
-        {'name': "First Deck", 'owner_id': 1, 'student': ""},
-        {'name': "Second Deck", 'owner_id': 1, 'student': "Ben"},
-        ])
-    conn.execute(deckcards.insert(), [
-        {'deck_id':1, 'card_id':1, 'owner_id': 1},
-        {'deck_id':1, 'card_id':2, 'owner_id': 1},
-        {'deck_id':1, 'card_id':3, 'owner_id': 1}
-        ])
+def connect(db_name, init=False, sample_data=False):
+    global engine
+
+    engine = create_engine(db_name)
+
+    if init:
+        metadata.create_all(engine)
+
+    if sample_data:
+        conn = get_conn()
+        conn.execute(users.insert(), id=1, name="Jim", email="jim@kalafut.net", password="password")
+        conn.execute(cards.insert(), [
+            {'id':1, 'front':'dog', 'owner_id':1},
+            {'id':2, 'front':'cat', 'owner_id':1},
+            {'id':3, 'front':'pizza', 'owner_id':1},
+            ])
+        conn.execute(decks.insert(), [
+            {'name': "First Deck", 'owner_id': 1, 'student': ""},
+            {'name': "Second Deck", 'owner_id': 1, 'student': "Ben"},
+            ])
+        conn.execute(deckcards.insert(), [
+            {'deck_id':1, 'card_id':1, 'owner_id': 1},
+            {'deck_id':1, 'card_id':2, 'owner_id': 1},
+            {'deck_id':1, 'card_id':3, 'owner_id': 1}
+            ])
+
 
 @event.listens_for(Engine, "connect")
 def set_sqlite_pragma(dbapi_connection, connection_record):
@@ -232,5 +232,3 @@ def set_sqlite_pragma(dbapi_connection, connection_record):
     cursor.execute("PRAGMA foreign_keys=ON")
     cursor.close()
 
-if __name__ == "__main__":
-    create_all()
