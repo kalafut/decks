@@ -202,6 +202,9 @@ def random_session_id():
 def connect(db_name, init=False, sample_data=False):
     global engine
 
+    if engine is not None:
+        raise Exception("Engine already connected")
+
     engine = create_engine(db_name)
 
     if init:
@@ -224,6 +227,11 @@ def connect(db_name, init=False, sample_data=False):
             {'deck_id':1, 'card_id':2, 'owner_id': 1},
             {'deck_id':1, 'card_id':3, 'owner_id': 1}
             ])
+
+def disconnect():
+    global engine
+
+    engine = None
 
 
 @event.listens_for(Engine, "connect")
