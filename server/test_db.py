@@ -21,17 +21,17 @@ def db(request):
 @pytest.fixture
 def db_preloaded(request, db):
     engine = db.engine
-    engine.execute(_db.users.insert(), id=1, name="Jim", email="jim@kalafut.net", password="password")
-    engine.execute(_db.cards.insert(), [
+    engine.execute(db.users.insert(), id=1, name="Jim", email="jim@kalafut.net", password="password")
+    engine.execute(db.cards.insert(), [
         {'id':1, 'front':'dog', 'owner_id':1},
         {'id':2, 'front':'cat', 'owner_id':1},
         {'id':3, 'front':'pizza', 'owner_id':1},
         ])
-    engine.execute(_db.decks.insert(), [
+    engine.execute(db.decks.insert(), [
         {'name': "First Deck", 'owner_id': 1, 'student': ""},
         {'name': "Second Deck", 'owner_id': 1, 'student': "Ben"},
         ])
-    engine.execute(_db.deckcards.insert(), [
+    engine.execute(db.deckcards.insert(), [
         {'deck_id':1, 'card_id':1, 'owner_id': 1},
         {'deck_id':1, 'card_id':2, 'owner_id': 1},
         {'deck_id':1, 'card_id':3, 'owner_id': 1}
@@ -52,20 +52,30 @@ def test_tables(db_preloaded):
     tables = db.engine.execute("SELECT name FROM sqlite_master WHERE type='table'").fetchall()
     list_equals(exp_tables, tables, 0)
 
-def test_decks(db):
-    db.engine.execute(_db.users.insert(), id=1, name="Jim", email="", password="")
-    db.engine.execute(_db.users.insert(), id=2, name="Jim", email="", password="")
-    db.engine.execute(_db.decks.insert(), [
+def test_decks_read(db):
+    db.engine.execute(db.users.insert(), id=1, name="Jim", email="", password="")
+    db.engine.execute(db.users.insert(), id=2, name="Jim", email="", password="")
+    db.engine.execute(db.decks.insert(), [
         {'name': "First", 'student': ""},
         {'name': "Second", 'student': ""},
         ])
-    db.engine.execute(_db.deckperms.insert(), [
+    db.engine.execute(db.deckperms.insert(), [
         {"user_id": 1, "deck_id": 1, "permission": 0},
         {"user_id": 1, "deck_id": 2, "permission": 0},
         ])
 
     decks = api.get(api.decks, user_id=1)
     list_equals(["First", "Second"], decks, "name")
+
+    decks = api.get(api.decks, user_id=2)
+    assert len(list(decks)) == 0
+
+    db.engine.execute(db.deckperms.update().where(db.deckperms.c.id == 2).values(user_id=2))
+    decks = api.get(api.decks, user_id=1)
+    list_equals(["First"], decks, "name")
+
+    decks = api.get(api.decks, user_id=2)
+    list_equals(["Second"], decks, "name")
 
 
 def list_equals(exp, act, field=None):
