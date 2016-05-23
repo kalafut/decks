@@ -35,8 +35,23 @@ class DeckListHandler(BaseHandler):
 
 class DeckEditHandler(BaseHandler):
     def get(self, id_):
-        deck = list(api.get(api.decks, user_id=1, id_=id_, id_dict=False))[0]
+        if int(id_) >= 0:
+            deck = list(api.get(api.decks, user_id=1, id_=id_, id_dict=False))[0]
+        else:
+            deck = { "name": "", "student": "" }
         self.render("templates/deckedit.html", deck=deck)
+
+    def post(self, id_):
+        data = {
+            "name": self.get_argument("name"),
+            "student": self.get_argument("student")
+            }
+        if int(id_) >= 0:
+            api.put(api.decks, data, user_id=1, id_=id_)
+        else:
+            api.post(api.decks, data, user_id=1)
+
+        self.redirect("/decklist")
 
 class HomeHandler(BaseHandler):
     def get(self):

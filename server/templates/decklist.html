@@ -11,17 +11,9 @@
         <table class="pure-table pure-table-horizontal" style="width: 50%">
             <tbody>
                 {% for deck in decks %}
-
-                <!--
-              {decks.map((deck) => {
-                let name = deck.name
-                if(deck.student !== "") {
-                  name += ` (${deck.student})`
-                }
-                -->
                 <tr><td>{{deck["name"]}} {{ "({})".format(deck["student"]) if deck["student"] else ""}} </td><td><i class="fa fa-play fa-lg"></i></td><td><a href="/decks/{{deck["id"]}}/edit"><i class="fa fa-pencil fa-lg"></i></a></td></tr>
                 {% end %}
-                <tr><td colSpan="3" class="center"><i class="fa fa-plus fa-lg"></i></td></tr>
+                <tr><td colSpan="3" class="center"><a href="/decks/-1/edit"><i class="fa fa-plus fa-lg"></a></i></td></tr>
             </tbody>
         </table>
     </div>
