@@ -28,6 +28,16 @@ class LoginHandler(BaseHandler):
         else:
             self.render("login.html", error_msg=data)
 
+class DeckListHandler(BaseHandler):
+    def get(self):
+        decks = list(api.get(api.decks, user_id=1, id_dict=False))
+        self.render("templates/decklist.html", decks=decks)
+
+class DeckEditHandler(BaseHandler):
+    def get(self, id_):
+        deck = list(api.get(api.decks, user_id=1, id_=id_, id_dict=False))[0]
+        self.render("templates/deckedit.html", deck=deck)
+
 class HomeHandler(BaseHandler):
     def get(self):
         return self.render("templates/index.html")
@@ -207,6 +217,8 @@ def make_app(config):
         (r"/words", WordsHandler),
         (r"/login", LoginHandler),
         (r"/signup", SignupHandler),
+        (r"/decklist", DeckListHandler),
+        (r"/decks/(.*)/edit", DeckEditHandler),
         (r"/.*", HomeHandler),
         #(r"/static/(.*)", tornado.web.StaticFileHandler, dict(path=settings['static_path'])),
     ], **settings)
