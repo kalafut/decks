@@ -53,6 +53,27 @@ class DeckEditHandler(BaseHandler):
 
         self.redirect("/decklist")
 
+
+class CardEditHandler(BaseHandler):
+    def get(self, id_):
+        if int(id_) >= 0:
+            card = list(api.get(api.cards, user_id=1, id_=id_, id_dict=False))[0]
+        else:
+            card = { "front": "", "back": "" }
+        self.render("templates/cardedit.html", card=card)
+
+    def post(self, id_):
+        data = {
+            "front": self.get_argument("front"),
+            "back": self.get_argument("back")
+            }
+        if int(id_) >= 0:
+            api.put(api.cards, data, user_id=1, id_=id_)
+        else:
+            api.post(api.cards, data, user_id=1)
+        self.redirect("/decklist")
+
+
 class HomeHandler(BaseHandler):
     def get(self):
         return self.render("templates/index.html")
@@ -233,6 +254,7 @@ def make_app(config):
         (r"/login", LoginHandler),
         (r"/signup", SignupHandler),
         (r"/decklist", DeckListHandler),
+        (r"/cards/(.*)/edit", CardEditHandler),
         (r"/decks/(.*)/edit", DeckEditHandler),
         (r"/.*", HomeHandler),
         #(r"/static/(.*)", tornado.web.StaticFileHandler, dict(path=settings['static_path'])),
