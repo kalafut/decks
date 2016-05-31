@@ -1,0 +1,27 @@
+<html>
+<head>
+<title>Drill</title>
+{% include "css_inc.html" %}
+</head>
+<body>
+    <div class="pure-g">
+        <div class="pure-u-1-5">
+        </div>
+        <div class="pure-u-3-5">
+            <h1 class="center">{{ card['front'] }}</h1>
+            <form method="post" class="pure-form pure-form-aligned">
+                <div class="center">
+                    <button type="submit" name="response" value="right" class="pure-button pure-button-primary button-success">Right</button>
+                    <button type="submit" name="response" value="wrong" class="pure-button pure-button-primary button-error">Wrong</button>
+                </div>
+                <input type="hidden" name="deckcards_id" value="{{ card['deckcards_id'] }}">
+            </form>
+        </div>
+        <div class="pure-u-1-5">
+        </div>
+    </div>
+</body>
+</html>
+
+
+

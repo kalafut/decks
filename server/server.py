@@ -1,5 +1,6 @@
 import json
 import os
+import random
 import time
 import tornado.escape # type: ignore
 import tornado.ioloop # type: ignore
@@ -24,7 +25,7 @@ class LoginHandler(BaseHandler):
         valid, data = db.login(self.get_argument("email"), self.get_argument("password"))
         if valid:
             self.set_secure_cookie("session_id", data.session_id)
-            next_url = self.get_argument("next")
+            next_url = self.get_argument("next", default='/decks')
             if next_url:
                 self.redirect(next_url)
             else:
@@ -48,9 +49,9 @@ class DeckEditHandler(BaseHandler):
         if int(id_) >= 0:
             deck = list(api.get(api.decks, user_id=1, id_=id_, id_dict=False))[0]
             cards = db.get_cards_for_deck(id_)
-            print(cards)
         else:
             deck = { "name": "", "student": "" }
+            cards = None
         self.render("templates/deckedit.html", deck=deck, cards=cards)
 
     def post(self, id_):
@@ -89,6 +90,17 @@ class CardEditHandler(BaseHandler):
             self.redirect(next_url)
         else:
             self.redirect("/decklist")
+
+class DrillHandler(BaseHandler):
+    @tornado.web.authenticated
+    def get(self, deck_id):
+        cards = db.get_cards_for_deck(deck_id)
+        card = random.choice(cards)
+        self.render("templates/card_drill.html", card=card)
+
+    @tornado.web.authenticated
+    def post(self, deck_id):
+        print(self.get_argument("response"))
 
 class AddCardHandler(BaseHandler):
     @tornado.web.authenticated
@@ -285,6 +297,7 @@ def make_app(config):
         (r"/cards/(.*)/edit", CardEditHandler),
         (r"/decks/(.*)/edit", DeckEditHandler),
         (r"/decks/(.*)/addcard", AddCardHandler),
+        (r"/decks/(.*)/drill", DrillHandler),
         (r"/decks", DeckListHandler),
         (r"/.*", HomeHandler),
     ], **settings)

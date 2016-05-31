@@ -26,6 +26,7 @@
                     </div>
                 </fieldset>
             </form>
+            {% if cards is not None %}
             <table class="pure-table pure-table-horizontal" style="width: 100%">
                 <thead>
                     <tr>
@@ -42,6 +43,7 @@
                     <tr><td colSpan="4" class="center"><a href="/decks/{{ deck['id'] }}/addcard"><i class="fa fa-plus fa-lg"></a></i></td></tr>
                 </tbody>
             </table>
+            {% end %}
         </div>
         <div class="pure-u-1-5">
         </div>

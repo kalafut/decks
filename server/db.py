@@ -88,7 +88,7 @@ def get_deckcards2(user_id):
 
 def get_cards_for_deck(deck_id):
     conn = get_conn()
-    query = conn.execute(select([cards, deckcards.c.box]).select_from(cards.join(deckcards)).where(deckcards.c.deck_id == deck_id))
+    query = conn.execute(select([cards, deckcards.c.box, deckcards.c.id.label('deckcards_id')]).select_from(cards.join(deckcards)).where(deckcards.c.deck_id == deck_id))
     return query.fetchall()
 
 def get_deckcards(deck_id):
@@ -127,7 +127,7 @@ def add_user(name, email, password):
         # already exists
         return False, "Email address already exists"
 
-    pw = password.encode('utf-8')
+    pw = password.encode()
     hashpw = bcrypt.hashpw(pw, bcrypt.gensalt(12))
     result = conn.execute(users.insert(),
         name=name,
@@ -170,7 +170,7 @@ def login(email, password):
     if not user:
         return False, "Invalid username or password"
 
-    pw = password.encode('utf-8')
+    pw = password.encode()
     if not bcrypt.hashpw(pw, user.password) == user.password:
         return False, "Invalid username or password"
 
