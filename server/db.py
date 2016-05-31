@@ -50,7 +50,7 @@ deckcards = Table('deckcards', metadata,
         Column('id', Integer, primary_key=True),
         Column('deck_id', Integer, ForeignKey('decks.id', ondelete='CASCADE')),
         Column('card_id', Integer, ForeignKey('cards.id', ondelete='CASCADE')),
-        Column('box', Integer, nullable=False, default=0),
+        Column('box', Integer, nullable=False, default=1),
         Column('status', Integer, nullable=False, default=0),
         Column('show_count', Integer, nullable=False, default=0),
         Column('last_shown', Integer, nullable=False, default=0),
@@ -171,6 +171,7 @@ def login(email, password):
         return False, "Invalid username or password"
 
     pw = password.encode()
+
     if not bcrypt.hashpw(pw, user.password) == user.password:
         return False, "Invalid username or password"
 
@@ -222,7 +223,7 @@ def connect(db_name, init=False, sample_data=False):
 
     if sample_data:
         conn = get_conn()
-        conn.execute(users.insert(), id=1, name="Jim", email="jim@kalafut.net", password="password")
+        conn.execute(users.insert(), id=1, name="Jim", email="jim@kalafut.net", password=b"$2b$12$BBcVrethKQoDLb4hiG./J.TrW4NJAc5qTjfUQAlGfoKIweP28v1QG")
         conn.execute(cards.insert(), [
             {'id':1, 'front':'dog', 'owner_id':1},
             {'id':2, 'front':'cat', 'owner_id':1},

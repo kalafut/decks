@@ -25,7 +25,7 @@ def get(resource, user_id=None, id_=None, id_dict=False):
     if id_dict:
         return make_id_dict(results)
     else:
-        return (dict(row) for row in results)
+        return [dict(row) for row in results]
 
 def post(resource, data, user_id=None):
     data["owner_id"] = user_id

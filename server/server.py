@@ -100,7 +100,17 @@ class DrillHandler(BaseHandler):
 
     @tornado.web.authenticated
     def post(self, deck_id):
-        print(self.get_argument("response"))
+        deckcards_id = self.get_argument("deckcards_id")
+        resp = self.get_argument("response")
+        if resp == "right":
+            deckcard = api.get(api.deckcards, id_=deckcards_id)[0]
+            api.put(api.deckcards, {'box':deckcard['box']+1}, deckcards_id, user_id=1)
+        elif resp == "wrong":
+            api.put(api.deckcards, {'box':1}, deckcards_id, user_id=1)
+        else:
+            raise Exception("Unexpected response")
+
+        self.redirect("/decks/{}/drill".format(deck_id))
 
 class AddCardHandler(BaseHandler):
     @tornado.web.authenticated
