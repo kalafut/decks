@@ -18,17 +18,27 @@ class BaseHandler(tornado.web.RequestHandler):
 
 class LoginHandler(BaseHandler):
     def get(self):
-        self.render("login.html", error_msg=None)
+        self.render("templates/login.html", error_msg=None)
 
     def post(self):
         valid, data = db.login(self.get_argument("email"), self.get_argument("password"))
         if valid:
             self.set_secure_cookie("session_id", data.session_id)
-            self.redirect("/")
+            next_url = self.get_argument("next")
+            if next_url:
+                self.redirect(next_url)
+            else:
+                self.redirect("/decks")
         else:
-            self.render("login.html", error_msg=data)
+            self.render("templates/login.html", error_msg=data)
+
+class LogoutHandler(BaseHandler):
+    def get(self):
+        self.clear_cookie("session_id")
+        self.redirect("/login")
 
 class DeckListHandler(BaseHandler):
+    @tornado.web.authenticated
     def get(self):
         decks = list(api.get(api.decks, user_id=1, id_dict=False))
         self.render("templates/decklist.html", decks=decks)
@@ -37,9 +47,11 @@ class DeckEditHandler(BaseHandler):
     def get(self, id_):
         if int(id_) >= 0:
             deck = list(api.get(api.decks, user_id=1, id_=id_, id_dict=False))[0]
+            cards = db.get_cards_for_deck(id_)
+            print(cards)
         else:
             deck = { "name": "", "student": "" }
-        self.render("templates/deckedit.html", deck=deck)
+        self.render("templates/deckedit.html", deck=deck, cards=cards)
 
     def post(self, id_):
         data = {
@@ -71,16 +83,31 @@ class CardEditHandler(BaseHandler):
             api.put(api.cards, data, user_id=1, id_=id_)
         else:
             api.post(api.cards, data, user_id=1)
-        self.redirect("/decklist")
 
+        next_url = self.get_argument("next")
+        if next_url:
+            self.redirect(next_url)
+        else:
+            self.redirect("/decklist")
+
+class AddCardHandler(BaseHandler):
+    @tornado.web.authenticated
+    def get(self, deck_id):
+        card = { "front": "", "back": "" }
+        self.render("templates/cardedit.html", card=card)
+
+    @tornado.web.authenticated
+    def post(self, deck_id):
+        db.add_card2(deck_id, self.get_argument("front"), self.get_argument("back"))
+        self.redirect('/decks/{}/edit'.format(deck_id))
 
 class HomeHandler(BaseHandler):
     def get(self):
-        return self.render("templates/index.html")
+        return self.redirect("/decks")
 
 class SignupHandler(BaseHandler):
     def get(self):
-        self.render("signup.html", error_msg=None)
+        self.render("templates/signup.html", error_msg=None)
 
     def post(self):
         valid, data = db.add_user(
@@ -252,12 +279,14 @@ def make_app(config):
         (r"/word/add", AddHandler),
         (r"/words", WordsHandler),
         (r"/login", LoginHandler),
+        (r"/logout", LogoutHandler),
         (r"/signup", SignupHandler),
         (r"/decklist", DeckListHandler),
         (r"/cards/(.*)/edit", CardEditHandler),
         (r"/decks/(.*)/edit", DeckEditHandler),
+        (r"/decks/(.*)/addcard", AddCardHandler),
+        (r"/decks", DeckListHandler),
         (r"/.*", HomeHandler),
-        #(r"/static/(.*)", tornado.web.StaticFileHandler, dict(path=settings['static_path'])),
     ], **settings)
 
 

@@ -26,6 +26,22 @@
                     </div>
                 </fieldset>
             </form>
+            <table class="pure-table pure-table-horizontal" style="width: 100%">
+                <thead>
+                    <tr>
+                        <th>Front</th>
+                        <th>Back</th>
+                        <th>Box</th>
+                        <th>Edit</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for card in cards %}
+                    <tr><td>{{ card["front"] }}</td><td>{{ card["back"] }}</td><td>{{ card["box"] }}</td><td><a href="/cards/{{ card["id"] }}/edit?next=/decks/{{ deck['id'] }}/edit"><i class="fa fa-pencil fa-lg"></i></a></td></tr>
+                    {% end %}
+                    <tr><td colSpan="4" class="center"><a href="/decks/{{ deck['id'] }}/addcard"><i class="fa fa-plus fa-lg"></a></i></td></tr>
+                </tbody>
+            </table>
         </div>
         <div class="pure-u-1-5">
         </div>

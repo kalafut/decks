@@ -86,6 +86,10 @@ def get_deckcards2(user_id):
     query = conn.execute(select([deckcards]).select_from(deckcards.join(decks)).where(decks.c.owner_id == user_id))
     return query.fetchall()
 
+def get_cards_for_deck(deck_id):
+    conn = get_conn()
+    query = conn.execute(select([cards, deckcards.c.box]).select_from(cards.join(deckcards)).where(deckcards.c.deck_id == deck_id))
+    return query.fetchall()
 
 def get_deckcards(deck_id):
     conn = get_conn()
@@ -108,6 +112,12 @@ def add_card(data):
     result = conn.execute(cards.insert(), front=data["front"], owner_id=1)
     new_id = result.inserted_primary_key[0]
     result = conn.execute(deckcards.insert(), deck_id=1, card_id=new_id)
+
+def add_card2(deck_id, front, back):
+    conn = get_conn()
+    result = conn.execute(cards.insert(), front=front, back=back, owner_id=1)
+    new_id = result.inserted_primary_key[0]
+    result = conn.execute(deckcards.insert(), deck_id=deck_id, card_id=new_id, owner_id=1)
 
 def add_user(name, email, password):
     conn = get_conn()
@@ -175,7 +185,7 @@ def as_dict(result):
 
     return result_dict
 
-def get_current_user(session_id: str) -> User:
+def get_current_user(session_id):
     conn = get_conn()
     session = conn.execute(select([sessions]).where(sessions.c.session_id == session_id)).fetchone()
 
