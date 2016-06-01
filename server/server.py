@@ -8,6 +8,8 @@ import tornado.web    # type: ignore
 
 import db
 import api
+from flask import Flask, render_template, redirect, request, url_for
+app = Flask(__name__)
 
 class BaseHandler(tornado.web.RequestHandler):
     def get_current_user(self) -> db.User:
@@ -38,33 +40,32 @@ class LogoutHandler(BaseHandler):
         self.clear_cookie("session_id")
         self.redirect("/login")
 
-class DeckListHandler(BaseHandler):
-    @tornado.web.authenticated
-    def get(self):
-        decks = list(api.get(api.decks, user_id=1, id_dict=False))
-        self.render("templates/decklist.html", decks=decks)
+@app.route('/decks')
+def decklist():
+    decks = list(api.get(api.decks, user_id=1, id_dict=False))
+    return render_template("decklist.html", decks=decks)
 
-class DeckEditHandler(BaseHandler):
-    def get(self, id_):
-        if int(id_) >= 0:
-            deck = list(api.get(api.decks, user_id=1, id_=id_, id_dict=False))[0]
-            cards = db.get_cards_for_deck(id_)
-        else:
-            deck = { "name": "", "student": "" }
-            cards = None
-        self.render("templates/deckedit.html", deck=deck, cards=cards)
-
-    def post(self, id_):
+@app.route('/decks/<id_>/edit', methods=['GET', 'POST'])
+def deckedit(id_):
+    if request.method == 'POST':
         data = {
-            "name": self.get_argument("name"),
-            "student": self.get_argument("student")
+            "name": request.form['name'],
+            "student": request.form['student']
             }
         if int(id_) >= 0:
             api.put(api.decks, data, user_id=1, id_=id_)
         else:
             api.post(api.decks, data, user_id=1)
 
-        self.redirect("/decklist")
+        return redirect(url_for('decklist'))
+    else:
+        if int(id_) >= 0:
+            deck = list(api.get(api.decks, user_id=1, id_=id_, id_dict=False))[0]
+            cards = db.get_cards_for_deck(id_)
+        else:
+            deck = { "name": "", "student": "" }
+            cards = None
+        return render_template("deckedit.html", deck=deck, cards=cards)
 
 
 class CardEditHandler(BaseHandler):
@@ -303,18 +304,16 @@ def make_app(config):
         (r"/login", LoginHandler),
         (r"/logout", LogoutHandler),
         (r"/signup", SignupHandler),
-        (r"/decklist", DeckListHandler),
+        #(r"/decklist", DeckListHandler),
         (r"/cards/(.*)/edit", CardEditHandler),
         (r"/decks/(.*)/edit", DeckEditHandler),
         (r"/decks/(.*)/addcard", AddCardHandler),
         (r"/decks/(.*)/drill", DrillHandler),
-        (r"/decks", DeckListHandler),
+        #(r"/decks", DeckListHandler),
         (r"/.*", HomeHandler),
     ], **settings)
 
 
 def server_start(config):
     """Create application and start event loop."""
-    app = make_app(config)
-    app.listen(8888)
-    tornado.ioloop.IOLoop.current().start()
+    app.run()

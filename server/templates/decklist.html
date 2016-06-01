@@ -12,7 +12,7 @@
             <tbody>
                 {% for deck in decks %}
                 <tr><td>{{deck["name"]}} {{ "({})".format(deck["student"]) if deck["student"] else ""}} </td><td><i class="fa fa-play fa-lg"></i></td><td><a href="/decks/{{deck["id"]}}/edit"><i class="fa fa-pencil fa-lg"></i></a></td></tr>
-                {% end %}
+                {% endfor %}
                 <tr><td colSpan="3" class="center"><a href="/decks/-1/edit"><i class="fa fa-plus fa-lg"></a></i></td></tr>
             </tbody>
         </table>
