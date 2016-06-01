@@ -67,30 +67,38 @@ def deckedit(id_):
             cards = None
         return render_template("deckedit.html", deck=deck, cards=cards)
 
+@app.route('/decks/<deck_id>/addcard', methods=['GET', 'POST'])
+def get(deck_id):
+    if request.method == 'POST':
+        db.add_card2(deck_id, request.form['front'], request.form['back'])
+        #return redirect('/decks/{}/edit'.format(deck_id))
+        return redirect(url_for('deckedit', id_=deck_id))
+    else:
+        card = { "front": "", "back": "" }
+        return render_template("cardedit.html", card=card)
 
-class CardEditHandler(BaseHandler):
-    def get(self, id_):
-        if int(id_) >= 0:
-            card = list(api.get(api.cards, user_id=1, id_=id_, id_dict=False))[0]
-        else:
-            card = { "front": "", "back": "" }
-        self.render("templates/cardedit.html", card=card)
 
-    def post(self, id_):
-        data = {
-            "front": self.get_argument("front"),
-            "back": self.get_argument("back")
-            }
+@app.route('/cards/<id_>/edit', methods=['GET', 'POST'])
+def cardedit(id_):
+    if request.method == 'POST':
+        data = { 'front': request.form['front'], 'back': request.form['back'] }
         if int(id_) >= 0:
             api.put(api.cards, data, user_id=1, id_=id_)
         else:
             api.post(api.cards, data, user_id=1)
 
-        next_url = self.get_argument("next")
+        next_url = request.args.get('next')
         if next_url:
-            self.redirect(next_url)
+            return redirect(next_url)
         else:
-            self.redirect("/decklist")
+            return redirect(url_for('decklist'))
+    else:
+        if int(id_) >= 0:
+            card = list(api.get(api.cards, user_id=1, id_=id_, id_dict=False))[0]
+        else:
+            card = { "front": "", "back": "" }
+        return render_template("cardedit.html", card=card)
+
 
 class DrillHandler(BaseHandler):
     @tornado.web.authenticated
@@ -113,16 +121,6 @@ class DrillHandler(BaseHandler):
 
         self.redirect("/decks/{}/drill".format(deck_id))
 
-class AddCardHandler(BaseHandler):
-    @tornado.web.authenticated
-    def get(self, deck_id):
-        card = { "front": "", "back": "" }
-        self.render("templates/cardedit.html", card=card)
-
-    @tornado.web.authenticated
-    def post(self, deck_id):
-        db.add_card2(deck_id, self.get_argument("front"), self.get_argument("back"))
-        self.redirect('/decks/{}/edit'.format(deck_id))
 
 class HomeHandler(BaseHandler):
     def get(self):
@@ -304,12 +302,8 @@ def make_app(config):
         (r"/login", LoginHandler),
         (r"/logout", LogoutHandler),
         (r"/signup", SignupHandler),
-        #(r"/decklist", DeckListHandler),
         (r"/cards/(.*)/edit", CardEditHandler),
-        (r"/decks/(.*)/edit", DeckEditHandler),
-        (r"/decks/(.*)/addcard", AddCardHandler),
         (r"/decks/(.*)/drill", DrillHandler),
-        #(r"/decks", DeckListHandler),
         (r"/.*", HomeHandler),
     ], **settings)
 
