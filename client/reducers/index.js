@@ -1,38 +1,35 @@
 import request from 'superagent'
 import { combineReducers } from 'redux'
 import { nextId } from '../util'
-import update from 'react-addons-update'
+import Immutable from 'seamless-immutable'
+
 
 const DRILL = 0
 const EDIT = 1
 const STUDENT = 2
 const MODE_CNT = 3
 
-let defaultState = {
+let defaultState = Immutable({
   page: 'DECK_LIST',
   decks: {},
   cards: {},
   deckcards: {}
-}
+})
 
 const decksApp = (state = defaultState, action) => {
   let deck, decks
 
   switch (action.type) {
       case 'LOAD_DECKS':
-          return update(state, {
-            decks: { $set: action.data }
-          })
+          return state.set('decks', action.data)
       case 'LOAD_DATA':
-          return update(state, {
-            cards: { $set: action.data.cards },
-            decks: { $set: action.data.decks },
-            deckcards: { $set: action.data.deckcards }
+          return state.set({
+            cards: action.data.cards,
+            decks: action.data.decks,
+            deckcards: action.data.deckcards
           })
       case 'GOTO_PAGE':
-          return Object.assign({}, state, {
-            page: action.page
-          })
+          return state.set('page', action.page)
       case 'ADD_DECK':
           deck = action.deck
           request
@@ -42,7 +39,7 @@ const decksApp = (state = defaultState, action) => {
             // TODO need to update temp ID with server ID here.
           })
 
-          return update(state, { decks: { [deck.id]: { $set: deck } } })
+          return state.setIn(['decks',deck.id], deck)
 
       case 'UPDATE_DECK':
           deck = action.deck
@@ -51,7 +48,7 @@ const decksApp = (state = defaultState, action) => {
           .send(deck)
           .end((err, res) => {})
 
-          return update(state, { decks: { [deck.id]: { $set: deck } } })
+          return state.setIn(['decks',deck.id], deck)
 
       case 'DELETE_DECK':
           let id = action.id
@@ -59,12 +56,7 @@ const decksApp = (state = defaultState, action) => {
           .delete(`/api/v1/decks/${id}`)
           .end((err, res) => {})
 
-          decks = Object.assign({}, state.decks)
-          delete(decks[id])
-
-          return Object.assign({}, state, {
-            decks: decks
-          })
+          return state.set('decks', state.decks.without(id))
       default:
           return state
   }

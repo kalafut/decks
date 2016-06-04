@@ -1,6 +1,5 @@
 import React from 'react'
 import { connect } from 'react-redux'
-import { findById } from '../util'
 import { withRouter } from 'react-router'
 import DeckInfoFields from './DeckInfoFields'
 
