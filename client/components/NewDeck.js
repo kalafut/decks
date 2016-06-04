@@ -16,7 +16,7 @@ class NewDeck extends React.Component {
 const mapDispatchToProps = (dispatch) => {
   return {
     onSave: (deck) => {
-      if(name.length > 0) {
+      if(deck.name.length > 0) {
         dispatch({
           type: 'ADD_DECK',
           deck: deck

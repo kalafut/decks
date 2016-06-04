@@ -15,7 +15,7 @@ class DeckList extends React.Component {
         <div className="pure-u-1-5">
         </div>
         <div className="pure-u-3-5">
-          <table>
+          <table className="pure-table pure-table-horizontal" style={{width:'50%'}}>
             <tbody>
               {decks.map((deck) => {
                 let name = deck.name
@@ -23,12 +23,13 @@ class DeckList extends React.Component {
                   name += ` (${deck.student})`
                 }
                 return (
-                  <tr key={deck.id}><td><Link to={`/deck/${deck.id}/edit`}>{name}</Link></td></tr>
+                  <tr key={deck.id}><td>{name}</td><td><Link to={`/deck/${deck.id}/edit`}><i className="fa fa-play fa-lg"></i></Link></td><td><Link to={`/deck/${deck.id}/edit`}><i className="fa fa-pencil fa-lg"></i></Link></td></tr>
+
                   )
               })}
+              <tr><td colSpan="3" className="center"><Link to="/add_deck"><i className="fa fa-plus fa-lg"></i></Link></td></tr>
             </tbody>
           </table>
-          <Link className="pure-button" to="/add_deck">Add</Link>
         </div>
         <div className="pure-u-1-5">
         </div>
