@@ -22,6 +22,8 @@ const decksApp = (state = defaultState, action) => {
   switch (action.type) {
       case 'LOAD_DECKS':
           return state.set('decks', action.data)
+      case 'LOAD_CARDS':
+          return state.set('cards', action.data)
       case 'LOAD_DATA':
           return state.set({
             cards: action.data.cards,
@@ -57,6 +59,15 @@ const decksApp = (state = defaultState, action) => {
           .end((err, res) => {})
 
           return state.set('decks', state.decks.without(id))
+
+      case 'UPDATE_CARD':
+          let card = action.card
+          request
+          .put(`/api/v1/cards/${card.id}`)
+          .send(card)
+          .end((err, res) => {})
+
+          return state.setIn(['cards',card.id], card)
       default:
           return state
   }
@@ -79,6 +90,15 @@ export const loadData = (store) => {
     .end((err, res) => {
       store.dispatch({
         type: 'LOAD_DECKS',
+        data: res.body
+      })
+    })
+
+    request
+    .get('/api/v1/cards')
+    .end((err, res) => {
+      store.dispatch({
+        type: 'LOAD_CARDS',
         data: res.body
       })
     })

@@ -1,4 +1,5 @@
 import React from 'react'
+import { connect } from 'react-redux'
 import { withRouter } from 'react-router'
 import CardInfoFields from './CardInfoFields'
 
@@ -21,8 +22,8 @@ class CardEdit extends React.Component {
       return(
         <CardInfoFields
           card={card}
-          onSave={(card) => {this.updateCard(card)}}
-          onDelete={(id) => {this.props.deleteCard(id)}}
+          onSave={this.props.onSave}
+          onDelete={this.props.onDelete}
           onEnd={() => { this.props.router.push('/cards') }}
         />
       )
@@ -30,4 +31,28 @@ class CardEdit extends React.Component {
   }
 }
 
-export default withRouter(CardEdit)
+const mapStateToProps = (state) => {
+  return {
+    cards: state.cards,
+  }
+}
+
+const mapDispatchToProps = (dispatch) => {
+  return {
+    onSave: (card) => {
+      dispatch({
+        type: 'UPDATE_CARD',
+        card: card
+      })
+    },
+    onDelete: (card) => {
+      dispatch({
+        type: 'DELETE_CARD',
+        id: card.id
+      })
+    }
+  }
+}
+
+
+export default withRouter(connect(mapStateToProps, mapDispatchToProps)(CardEdit))

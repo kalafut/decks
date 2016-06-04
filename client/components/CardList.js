@@ -5,6 +5,7 @@ import { Link } from 'react-router'
 
 class CardList extends React.Component {
   render() {
+    console.log(this.props.cards.asMutable())
     let cards = []
 
     for(let id in this.props.cards) {
