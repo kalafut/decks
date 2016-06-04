@@ -11,6 +11,7 @@ import DeckList from './components/DeckList'
 import DeckEdit from './components/DeckEdit'
 import CardList from './components/CardList'
 import CardEdit from './components/CardEdit'
+import CardAdd from './components/CardAdd'
 
 let store = createStore(decksApp)
 
@@ -24,8 +25,9 @@ render(
         <Route path="decks" component={DeckList} />
         <Route path="cards" component={CardList} />
         <Route path="add_deck" component={NewDeck} />
-      <Route path="decks/:id/edit" component={DeckEdit} />
-      <Route path="cards/:id/edit" component={CardEdit} />
+        <Route path="add_card" component={CardAdd} />
+        <Route path="decks/:id/edit" component={DeckEdit} />
+        <Route path="cards/:id/edit" component={CardEdit} />
       </Route>
     </Router>
   </Provider>,

@@ -32,6 +32,7 @@ const decksApp = (state = defaultState, action) => {
           })
       case 'GOTO_PAGE':
           return state.set('page', action.page)
+
       case 'ADD_DECK':
           deck = action.deck
           request
@@ -60,6 +61,17 @@ const decksApp = (state = defaultState, action) => {
 
           return state.set('decks', state.decks.without(id))
 
+      case 'ADD_CARD':
+          card = action.card
+          request
+          .post('/api/v1/cards')
+          .send(card)
+          .end((err, res) => {
+            // TODO need to update temp ID with server ID here.
+          })
+
+          return state.setIn(['cards',card.id], card)
+
       case 'UPDATE_CARD':
           let card = action.card
           request
@@ -68,6 +80,15 @@ const decksApp = (state = defaultState, action) => {
           .end((err, res) => {})
 
           return state.setIn(['cards',card.id], card)
+
+      case 'DELETE_CARD':
+          id = action.id
+          request
+          .delete(`/api/v1/cards/${id}`)
+          .end((err, res) => {})
+
+          return state.set('cards', state.cards.without(id))
+
       default:
           return state
   }

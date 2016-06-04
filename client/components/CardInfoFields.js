@@ -23,7 +23,7 @@ export default class CardInfoFields extends React.Component {
     if(this.props.onDelete !== undefined) {
       deleteButton =
         <button type="button" onClick={()=>{
-          this.props.onDelete(this.props.card.id)
+          this.props.onDelete(this.props.card)
           this.props.onEnd()
         }}
         className="pure-button button-error">Delete
