@@ -2,6 +2,7 @@ import React from 'react'
 import { connect } from 'react-redux'
 import { withRouter } from 'react-router'
 import DeckInfoFields from './DeckInfoFields'
+import CardList from './CardList'
 
 class DeckEdit extends React.Component {
   render() {
@@ -14,7 +15,10 @@ class DeckEdit extends React.Component {
       )
     } else {
       return(
-        <DeckInfoFields deck={deck} onSave={this.props.onSave} onDelete={this.props.onDelete} onEnd={() => { this.props.router.push('/decks') }} />
+        <div>
+          <DeckInfoFields deck={deck} onSave={this.props.onSave} onDelete={this.props.onDelete} onEnd={() => { this.props.router.push('/decks') }} />
+          <CardList cards={this.props.cards} />
+        </div>
       )
     }
   }

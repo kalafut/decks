@@ -23,7 +23,7 @@ class DeckList extends React.Component {
                   name += ` (${deck.student})`
                 }
                 return (
-                  <tr key={deck.id}><td>{name}</td><td><Link to={`/deck/${deck.id}/edit`}><i className="fa fa-play fa-lg"></i></Link></td><td><Link to={`/deck/${deck.id}/edit`}><i className="fa fa-pencil fa-lg"></i></Link></td></tr>
+                  <tr key={deck.id}><td>{name}</td><td><Link to={`/decks/${deck.id}/edit`}><i className="fa fa-play fa-lg"></i></Link></td><td><Link to={`/decks/${deck.id}/edit`}><i className="fa fa-pencil fa-lg"></i></Link></td></tr>
 
                   )
               })}

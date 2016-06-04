@@ -10,6 +10,7 @@ import NewDeck from './components/NewDeck'
 import DeckList from './components/DeckList'
 import DeckEdit from './components/DeckEdit'
 import CardList from './components/CardList'
+import CardEdit from './components/CardEdit'
 
 let store = createStore(decksApp)
 
@@ -23,7 +24,8 @@ render(
         <Route path="decks" component={DeckList} />
         <Route path="cards" component={CardList} />
         <Route path="add_deck" component={NewDeck} />
-        <Route path="deck/:id/edit" component={DeckEdit} />
+      <Route path="decks/:id/edit" component={DeckEdit} />
+      <Route path="cards/:id/edit" component={CardEdit} />
       </Route>
     </Router>
   </Provider>,

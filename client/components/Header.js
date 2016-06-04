@@ -7,6 +7,8 @@ class Header extends React.Component {
     return(
       <div>
       <Link to="/decks">Deck List</Link>
+      <br/>
+      <Link to="/cards">Card List</Link>
       </div>
     )
   }
