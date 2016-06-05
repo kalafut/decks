@@ -13,7 +13,7 @@ if __name__ == "__main__":
         init = True
         sample_data = True
 
-    db.connect("sqlite:///test.db", init=init, sample_data=sample_data)
+    db.connect2("sqlite:///test2.db", init=init, sample_data=sample_data)
 
     print("Starting server on port 8888...")
     server.server_start(config)

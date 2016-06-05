@@ -11,12 +11,78 @@ from sqlalchemy.sql import select, delete  # type: ignore
 from sqlalchemy.engine import Engine       # type: ignore
 from sqlalchemy import event               # type: ignore
 
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import relation, sessionmaker, relationship
+
+Base = declarative_base()
+
+
+class User(Base):
+    __tablename__ = 'users'
+
+    id = Column(Integer, primary_key=True)
+    name = Column(String(255), nullable=False)
+    email = Column(String(255), nullable=False)
+    decks = relationship("Deck", back_populates="owner")
+
+
+class CardBase(Base):
+    __tablename__ = 'cardbases'
+
+    id = Column(Integer, primary_key=True)
+    front = Column(String(255), nullable=False)
+    back = Column(String(255), nullable=False, default="")
+    cards = relationship("Card", back_populates="cardbase")
+
+    def __repr__(self):
+        return "Card(%r, %r)" % (self.front, self.back)
+
+
+class Card(Base):
+    __tablename__ = 'cards'
+
+    id = Column(Integer, primary_key=True)
+    cardbase_id = Column(Integer, ForeignKey("cardbases.id"))
+    cardbase = relationship("CardBase", back_populates="cards")
+
+    deck_id = Column(Integer, ForeignKey("decks.id"))
+    deck = relationship("Deck", back_populates="cards")
+
+    box = Column(Integer, nullable=False, default=1)
+    status = Column(Integer, nullable=False, default=0)
+    show_count = Column(Integer, nullable=False, default=0)
+    last_shown = Column(Integer, nullable=False, default=0)
+
+    @property
+    def front(self):
+        return self.cardbase.front
+
+    @property
+    def back(self):
+        return self.cardbase.back
+
+class Deck(Base):
+    __tablename__ = 'decks'
+
+    id = Column(Integer, primary_key=True)
+    name = Column(String(255), nullable=False)
+    student = Column(String(255), nullable=True)
+    cards = relationship("Card", back_populates='deck')
+
+    owner_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    owner = relationship("User", back_populates="decks")
+
+
+
+########################
+
+
 metadata = MetaData()
 engine = None
 prng = SystemRandom()
 
-User = collections.namedtuple('User', ['id', 'name', 'email'])
-Session = collections.namedtuple('Session', ['session_id', 'user'])
+#User = collections.namedtuple('User', ['id', 'name', 'email'])
+#Session = collections.namedtuple('Session', ['session_id', 'user'])
 
 users = Table('users', metadata,
         Column('id', Integer, primary_key=True),
@@ -175,7 +241,7 @@ def as_dict(result):
 
     return result_dict
 
-def get_current_user(session_id: str) -> User:
+def get_current_user(session_id):
     conn = get_conn()
     session = conn.execute(select([sessions]).where(sessions.c.session_id == session_id)).fetchone()
 
@@ -198,6 +264,33 @@ def create_session(user):
 def random_session_id():
     return "".join([prng.choice(string.ascii_letters) for _ in range(30)])
 
+
+
+def Session():
+    return _Session()
+
+def connect2(db_name, init=False, sample_data=False):
+    global _Session
+    engine = create_engine(db_name)
+
+    if init:
+        Base.metadata.create_all(engine)
+
+    _Session = sessionmaker(bind=engine)
+    session = _Session()
+
+    if sample_data:
+        u = User(name='Jim', email='jim@kalafut.net')
+        d = Deck(name='First Deck', owner=u)
+        d.cards = [
+                Card(cardbase=CardBase(front='Afront', back='Aback')),
+                Card(cardbase=CardBase(front='F3', back='')),
+                ]
+
+        session.add(d)
+        d = Deck(name='Second Deck', owner=u)
+        session.add(d)
+        session.commit()
 
 def connect(db_name, init=False, sample_data=False):
     global engine

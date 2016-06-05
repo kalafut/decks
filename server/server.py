@@ -6,10 +6,12 @@ import tornado.ioloop # type: ignore
 import tornado.web    # type: ignore
 
 import db
+from db import Session, Deck
 import api
 
 class BaseHandler(tornado.web.RequestHandler):
-    def get_current_user(self) -> db.User:
+    def get_current_user(self):
+        return 1
         session_id = self.get_secure_cookie("session_id") # type: bytes
         if session_id:
             return db.get_current_user(session_id.decode())
@@ -83,12 +85,19 @@ class ApiHandler(BaseHandler):
     def delete(self, id_=None):
         api.delete(self.resource, id_=id_, user_id=1)
 
-class CardHandler(ApiHandler):
+class CardHandler:
     resource = api.cards
 
-
-class DeckHandler(ApiHandler):
+class DeckHandler(BaseHandler):
     resource = api.decks
+
+    def get(self, id_=None):
+        session = Session()
+        for x in session.query(Deck):
+            print(x.__dict__)
+        result = [dict(x) for x in session.query(Deck).all()]
+        print(result)
+        self.write(result)
 
 
 class DataHandler(BaseHandler):
