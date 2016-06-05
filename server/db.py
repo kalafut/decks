@@ -37,8 +37,11 @@ class CardBase(Base):
     def __repr__(self):
         return "Card(%r, %r)" % (self.front, self.back)
 
+class MixinAsDict:
+    def asDict(self):
+        return {k:getattr(self, k) for k in vars(self) if not k.startswith('_')}
 
-class Card(Base):
+class Card(Base, MixinAsDict):
     __tablename__ = 'cards'
 
     id = Column(Integer, primary_key=True)
@@ -61,16 +64,23 @@ class Card(Base):
     def back(self):
         return self.cardbase.back
 
-class Deck(Base):
+    def asDict(self):
+        d = super().asDict()
+        d.update({'front': self.front, 'back': self.back})
+        return d
+
+
+class Deck(Base, MixinAsDict):
     __tablename__ = 'decks'
 
     id = Column(Integer, primary_key=True)
     name = Column(String(255), nullable=False)
-    student = Column(String(255), nullable=True)
+    student = Column(String(255), nullable=False, default="")
     cards = relationship("Card", back_populates='deck')
 
     owner_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     owner = relationship("User", back_populates="decks")
+
 
 
 

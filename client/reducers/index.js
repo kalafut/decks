@@ -2,7 +2,7 @@ import request from 'superagent'
 import { combineReducers } from 'redux'
 import { nextId } from '../util'
 import Immutable from 'seamless-immutable'
-
+import _ from 'lodash'
 
 const DRILL = 0
 const EDIT = 1
@@ -109,18 +109,20 @@ export const loadData = (store) => {
     request
     .get('/api/v1/decks')
     .end((err, res) => {
+      let decks = _.keyBy(res.body.data, 'id')
       store.dispatch({
         type: 'LOAD_DECKS',
-        data: res.body
+        data: decks
       })
     })
 
     request
     .get('/api/v1/cards')
     .end((err, res) => {
+      let cards = _.keyBy(res.body.data, 'id')
       store.dispatch({
         type: 'LOAD_CARDS',
-        data: res.body
+        data: cards
       })
     })
 }

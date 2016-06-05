@@ -6,7 +6,7 @@ import tornado.ioloop # type: ignore
 import tornado.web    # type: ignore
 
 import db
-from db import Session, Deck
+from db import Session, Deck, Card
 import api
 
 class BaseHandler(tornado.web.RequestHandler):
@@ -69,8 +69,8 @@ class WordsHandler(BaseHandler):
 
 class ApiHandler(BaseHandler):
     def get(self, id_=None):
-        output = api.get(self.resource, user_id=1, id_=id_, id_dict=True)
-        self.write(output)
+        result = {'data':[x.asDict() for x in Session().query(self.resource)]}
+        self.write(result)
 
     def post(self, id_=None):
         data = tornado.escape.json_decode(self.request.body)
@@ -85,19 +85,11 @@ class ApiHandler(BaseHandler):
     def delete(self, id_=None):
         api.delete(self.resource, id_=id_, user_id=1)
 
-class CardHandler:
-    resource = api.cards
+class CardHandler(ApiHandler):
+    resource = Card
 
-class DeckHandler(BaseHandler):
-    resource = api.decks
-
-    def get(self, id_=None):
-        session = Session()
-        for x in session.query(Deck):
-            print(x.__dict__)
-        result = [dict(x) for x in session.query(Deck).all()]
-        print(result)
-        self.write(result)
+class DeckHandler(ApiHandler):
+    resource = Deck
 
 
 class DataHandler(BaseHandler):
