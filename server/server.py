@@ -6,12 +6,20 @@ import tornado.ioloop # type: ignore
 import tornado.web    # type: ignore
 
 import db
-from db import Session, Deck, Card
+from db import Session, Deck, Card, User
 import api
 
 class BaseHandler(tornado.web.RequestHandler):
+    def prepare(self):
+        self.session = Session()
+
+    def on_finish(self):
+        self.session.close()
+
     def get_current_user(self):
-        return 1
+        user = self.session.query(User).filter(User.id==1).first()
+        return user
+
         session_id = self.get_secure_cookie("session_id") # type: bytes
         if session_id:
             return db.get_current_user(session_id.decode())
@@ -69,13 +77,15 @@ class WordsHandler(BaseHandler):
 
 class ApiHandler(BaseHandler):
     def get(self, id_=None):
-        result = {'data':[x.asDict() for x in Session().query(self.resource)]}
+        result = {'data':[x.asDict() for x in self.session.query(self.resource)]}
         self.write(result)
 
     def post(self, id_=None):
         data = tornado.escape.json_decode(self.request.body)
-        output = api.post(self.resource, data, user_id=1)
-        self.write(output)
+        o = self.resource(owner=self.current_user, **data)
+        self.session.add(o)
+        self.session.commit()
+        self.write(o.asDict())
 
     def put(self, id_=None):
         data = tornado.escape.json_decode(self.request.body)
