@@ -8,7 +8,10 @@ class CardList extends React.Component {
     let cards = []
 
     for(let id in this.props.cards) {
-      cards.push(Immutable(this.props.cards[id]))
+      let card = this.props.cards[id]
+      if(card.deck_id === this.props.deck_filter) {
+        cards.push(Immutable(this.props.cards[id]))
+      }
     }
 
     return(

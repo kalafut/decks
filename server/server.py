@@ -6,7 +6,7 @@ import tornado.ioloop # type: ignore
 import tornado.web    # type: ignore
 
 import db
-from db import Session, Deck, Card, User
+from db import Session, Deck, Card, CardBase, User
 import api
 
 class BaseHandler(tornado.web.RequestHandler):
@@ -82,15 +82,23 @@ class ApiHandler(BaseHandler):
 
     def post(self, id_=None):
         data = tornado.escape.json_decode(self.request.body)
-        o = self.resource(owner=self.current_user, **data)
+        del data['id']
+        if hasattr(self.resource, 'owner_id'):
+            data['owner_id'] = self.current_user.id
+        print(data)
+        o = self.resource(**data)
         self.session.add(o)
         self.session.commit()
         self.write(o.asDict())
 
     def put(self, id_=None):
         data = tornado.escape.json_decode(self.request.body)
-        output = api.put(self.resource, data, id_=id_, user_id=1)
-        self.write(output)
+        record = self.session.query(self.resource).filter_by(id=id_).first()
+        for field in self.update_fields:
+            if field in data:
+                setattr(record, field, data[field])
+        self.session.commit()
+        self.write(record.asDict())
 
     def delete(self, id_=None):
         api.delete(self.resource, id_=id_, user_id=1)
@@ -98,8 +106,18 @@ class ApiHandler(BaseHandler):
 class CardHandler(ApiHandler):
     resource = Card
 
+    def post(self, id_=None):
+        data = tornado.escape.json_decode(self.request.body)
+
+        cb = CardBase(front=data['front'], back=data['back'])
+        card = Card(cardbase=cb)
+        self.session.add(card)
+        self.session.commit()
+        self.write(card.asDict())
+
 class DeckHandler(ApiHandler):
     resource = Deck
+    update_fields = ['name', 'student']
 
 
 class DataHandler(BaseHandler):

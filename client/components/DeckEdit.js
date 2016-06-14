@@ -17,7 +17,7 @@ class DeckEdit extends React.Component {
       return(
         <div>
           <DeckInfoFields deck={deck} onSave={this.props.onSave} onDelete={this.props.onDelete} onEnd={() => { this.props.router.push('/decks') }} />
-          <CardList cards={this.props.cards} />
+          <CardList deck_filter={deck.id}/>
         </div>
       )
     }
