@@ -16,4 +16,8 @@ if __name__ == "__main__":
     db.connect2("sqlite:///test2.db", init=init, sample_data=sample_data)
 
     print("Starting server on port 8888...")
-    server.server_start(config)
+
+    if "flask" in sys.argv:
+        server.flask_server_start()
+    else:
+        server.server_start(config)

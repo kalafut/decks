@@ -4,10 +4,14 @@ import time
 import tornado.escape # type: ignore
 import tornado.ioloop # type: ignore
 import tornado.web    # type: ignore
+from flask import Flask, render_template, redirect, request, url_for, jsonify
 
 import db
 from db import Session, Deck, Card, CardBase, User
 import api
+
+app = Flask(__name__)
+
 
 class BaseHandler(tornado.web.RequestHandler):
     def prepare(self):
@@ -41,6 +45,11 @@ class LoginHandler(BaseHandler):
 class HomeHandler(BaseHandler):
     def get(self):
         return self.render("templates/index.html")
+
+@app.route('/', defaults={'path': ''})
+@app.route('/<path:path>')
+def home(path):
+    return render_template('index.html')
 
 class SignupHandler(BaseHandler):
     def get(self):
@@ -118,6 +127,39 @@ class CardHandler(ApiHandler):
 class DeckHandler(ApiHandler):
     resource = Deck
     update_fields = ['name', 'student']
+
+
+@app.route('/api/v1/decks', methods=['GET', 'POST'])
+def decklist():
+    session = Session()
+
+    if request.method == 'GET':
+        ret = {'data':[x.asDict() for x in session.query(Deck)]}
+    elif request.method == 'POST':
+        data = request.get_json()
+        deck = Deck(name=data['name'], student=data['student'], owner_id=1)
+        session.add(deck)
+        ret = deck.asDict()
+        session.commit()
+
+    session.close()
+
+    return jsonify(ret)
+
+@app.route('/api/v1/decks/<int:id>', methods=['PUT'])
+def deckedit(id):
+    session = Session()
+    data = request.get_json()
+
+    if request.method == 'PUT':
+        deck = session.query(Deck).filter_by(id=id).first()
+        deck.name = data['name']
+        deck.student = data['student']
+
+    session.commit()
+    session.close()
+
+    return jsonify(deck.asDict())
 
 
 class DataHandler(BaseHandler):
@@ -246,3 +288,6 @@ def server_start(config):
     app = make_app(config)
     app.listen(8888)
     tornado.ioloop.IOLoop.current().start()
+
+def flask_server_start():
+    app.run()
