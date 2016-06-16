@@ -67,22 +67,6 @@ class SignupHandler(BaseHandler):
         else:
             self.render("signup.html", error_msg=data)
 
-class AddHandler(BaseHandler):
-    def post(self):
-        data = tornado.escape.json_decode(self.request.body)
-        db.add_card(data)
-
-
-class WordsHandler(BaseHandler):
-    def get(self):
-        results = db.get_deckcards(1)
-
-        self.write(results)
-
-    def post(self):
-        data = tornado.escape.json_decode(self.request.body)
-        db.update_deckcards(data)
-
 
 class ApiHandler(BaseHandler):
     def get(self, id_=None):
@@ -162,100 +146,6 @@ def deckedit(id):
     return jsonify(deck.asDict())
 
 
-class DataHandler(BaseHandler):
-    def get(self, deck_id=None):
-        output = {
-            "object": "full",
-            "timestamp": int(time.time()*1000),
-            "cards": {},
-            "decks": {},
-            "deckcards": {}
-            }
-
-        cards = db.get_cards(1)
-        for row in cards:
-            output["cards"][row["id"]] = {
-                "id": row["id"],
-                "front": row["front"],
-                "back": row["back"]
-                }
-
-        decks = api.get(api.decks, 1)
-
-        for row in decks:
-            output["decks"][row["id"]] = row
-
-        deckcards = api.get(api.deckcards, 1)
-        for row in deckcards:
-            output["deckcards"][row["id"]] = row
-
-        self.write(output)
-
-    def post(self):
-        data = tornado.escape.json_decode(self.request.body)
-        db.add_deck(data)
-
-class MainHandler(BaseHandler):
-    def initialize(self, store):
-        self.store = store
-
-    def get(self, guid):
-        """Handle GET requests."""
-
-        # record will be None if GUID is invalid or missing
-        record = self.store.get(guid)
-
-        if record:
-            self.write(record)
-        else:
-            raise tornado.web.HTTPError(400)
-
-    def post(self, guid=None):
-        """
-        Handle POST requests.
-
-        Improper body data (e.g. not JSON, JSON not matching expected
-        structure) will all result in status 400.
-        """
-        try:
-            data = tornado.escape.json_decode(self.request.body)
-            if "guid" in data:
-                del data["guid"]
-        except ValueError:
-            raise tornado.web.HTTPError(400)
-
-        if not isinstance(data, dict):
-            raise tornado.web.HTTPError(400)
-
-        # Default to empty record if no GUID provided or no existing record
-        record = {
-            "guid": None,
-            "expire": "",
-            "user": ""
-        }
-
-        # Check whether this record already exists and use that data as the default
-        if guid:
-            record["guid"] = guid
-            current_record = self.store.get(guid)
-            if current_record:
-                record.update(current_record)
-
-        # Update with submitted data
-        record.update(data)
-
-        result = self.store.post(record)
-
-        if not result:
-            raise tornado.web.HTTPError(400)
-        else:
-            self.write(result)
-
-    def delete(self, guid):
-        """Handle DELETE requests."""
-        if not self.store.delete(guid):
-            raise tornado.web.HTTPError(400)
-
 
 def make_app(config):
     """Create application and configure routes."""
@@ -273,9 +163,6 @@ def make_app(config):
         (r"/api/v1/decks", DeckHandler),
         (r"/api/v1/cards/(.*)", CardHandler),
         (r"/api/v1/cards", CardHandler),
-        (r"/api/v1/data", DataHandler),
-        (r"/word/add", AddHandler),
-        (r"/words", WordsHandler),
         (r"/login", LoginHandler),
         (r"/signup", SignupHandler),
         (r"/.*", HomeHandler),
