@@ -8,3 +8,4 @@ lib/
 pip-selfcheck.json
 .cache
 *.db
+bundle.js
