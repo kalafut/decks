@@ -108,6 +108,44 @@ class CardHandler(ApiHandler):
         self.session.commit()
         self.write(card.asDict())
 
+
+@app.route('/api/v1/cards', methods=['GET', 'POST'])
+def cardlist():
+    session = Session()
+
+    if request.method == 'GET':
+        ret = {'data':[x.asDict() for x in session.query(Card)]}
+    elif request.method == 'POST':
+        data = request.get_json()
+        card = Card(front=data['front'], back=data['back'])
+        session.add(card)
+        ret = card.asDict()
+        session.commit()
+
+    session.close()
+
+    return jsonify(ret)
+
+@app.route('/api/v1/cards/<int:id>', methods=['PUT', 'DELETE'])
+def cardedit(id):
+    session = Session()
+    data = request.get_json()
+
+    card = session.query(Card).filter_by(id=id).first()
+    if request.method == 'PUT':
+        card.front = data['front']
+        card.back = data['back']
+    elif request.method == 'DELETE':
+        session.delete(card)
+
+    session.commit()
+    session.close()
+
+    return jsonify(card.asDict())
+
+
+
+
 class DeckHandler(ApiHandler):
     resource = Deck
     update_fields = ['name', 'student']
