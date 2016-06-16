@@ -130,15 +130,17 @@ def decklist():
 
     return jsonify(ret)
 
-@app.route('/api/v1/decks/<int:id>', methods=['PUT'])
+@app.route('/api/v1/decks/<int:id>', methods=['PUT', 'DELETE'])
 def deckedit(id):
     session = Session()
     data = request.get_json()
 
+    deck = session.query(Deck).filter_by(id=id).first()
     if request.method == 'PUT':
-        deck = session.query(Deck).filter_by(id=id).first()
         deck.name = data['name']
         deck.student = data['student']
+    elif request.method == 'DELETE':
+        session.delete(deck)
 
     session.commit()
     session.close()
